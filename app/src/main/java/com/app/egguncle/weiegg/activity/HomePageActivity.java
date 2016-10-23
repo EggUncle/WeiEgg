@@ -47,6 +47,7 @@ public class HomePageActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home_page);
+
         initVars();
         initViews();
    //     WeiBoUtils.getUserInformation(this, mParameters, mOauth2AccessToken.getToken());
@@ -76,9 +77,8 @@ public class HomePageActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
 //                LogUtils.e("你们镇定一下，我要加载数据了");
-//                WeiBoUtils.getPublicWeiBo(HomePageActivity.this, mParameters, mOauth2AccessToken.getToken(), WeiBoUtils.GET_OLD_WEIBO);
-//                weiboRecyclerViewAdapter.notifyDataSetChanged();
-                startActivity(new Intent(HomePageActivity.this, FriendActivity.class));
+                WeiBoUtils.getPublicWeiBo(HomePageActivity.this, mParameters, mOauth2AccessToken.getToken(), WeiBoUtils.GET_NEW_WEIBO);
+                weiboRecyclerViewAdapter.notifyDataSetChanged();
             }
         });
         srhHome = (SwipeRefreshLayout) findViewById(R.id.srh_home);

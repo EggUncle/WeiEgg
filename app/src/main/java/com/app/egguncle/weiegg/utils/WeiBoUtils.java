@@ -30,8 +30,13 @@ public class WeiBoUtils {
 
     private static long mUid;
     private static List<Statuses> mListStatuses;//获取到的微博数据
+    private static List<Statuses> mListFriendStatuses; //获取到的好友的微博数据
     private static long mSinceId = 0;  //若指定此参数，则返回ID比since_id大的微博（即比since_id时间晚的微博），默认为0。
     private static long mMaxId = 0;       //若指定此参数，则返回ID小于或等于max_id的微博，默认为0。
+
+    private static long mFriendSinceId=0;  //和上面一样，但是用于获取单个用户的微博
+    private static long mFriendMaxId=0;
+
     public final static int GET_NEW_WEIBO = 1;
     public final static int GET_OLD_WEIBO = 2;
 
@@ -210,6 +215,13 @@ public class WeiBoUtils {
 
         return mListStatuses;
     }
+    public static List<Statuses> getmListFriendStatuses() {
+        if (mListFriendStatuses == null) {
+            mListFriendStatuses = new ArrayList<>();
+        }
+
+        return mListFriendStatuses;
+    }
 
     public static void getFollowMe(Context context, final WeiboParameters parameters, final String accessToken, final String name, final TextView textView, final ImageView imageView) {
         new BaseNetWork(context, CWUrls.GET_USER) {
@@ -247,7 +259,79 @@ public class WeiBoUtils {
         }.get();
     }
 
+    public static void getFriendWeiBo(final Context context, final WeiboParameters parameters, final String accessToken, final int requestType) {
+
+        new BaseNetWork(context, CWUrls.GET_FRIEND) {
+
+            @Override
+            public WeiboParameters onPrepare() {
+                parameters.put(WBConstants.AUTH_ACCESS_TOKEN, accessToken);
+
+//                parameters.put("count", 10);
+//                if (requestType == GET_NEW_WEIBO) {
+//                    // 在请求中添加since_id参数，这样在请求的时候只会返回最新的数据，不会重复请求已经获取的数据
+//                    LogUtils.e("参数中的since_id为： " + mFriendSinceId);
+//                    parameters.put("since_id", mFriendSinceId);
+//                }
+//                if (requestType == GET_OLD_WEIBO) {
+//                    //在请求中添加max_id参数，这样请求的时候就会返回早一些的数据，不会重复请求已经获取的数据
+//                    LogUtils.e("参数中的max_id为： " + mFriendMaxId);
+//                    parameters.put("max_id", mFriendMaxId);
+//                }
+                return parameters;
+            }
+
+            @Override
+            public void onFinish(HttpResponse response, boolean sucess) {
+                if (sucess) {
+                    LogUtils.e("返回的数据为 " + response.response);
+                    Gson gson = new Gson();
+                    WeiBoRoot weiBoRoot = gson.fromJson(response.response, WeiBoRoot.class);
+                    if (weiBoRoot.getStatuses().size() != 0) {
+                        if (mListFriendStatuses == null) {
+                            mListFriendStatuses = weiBoRoot.getStatuses();
+                        } else {
+                            for (int i = 0; i < weiBoRoot.getStatuses().size(); i++) {
+                                if (requestType == GET_NEW_WEIBO) {
+                                    mListFriendStatuses.add(i, weiBoRoot.getStatuses().get(i));
+                                }
+                                if (requestType == GET_OLD_WEIBO) {
+                                    mListFriendStatuses.add(weiBoRoot.getStatuses().get(i));
+                                }
+                            }
+                        }
+                    }
+                    LogUtils.e("------------------Friend---------------------------");
+                    LogUtils.e(mListFriendStatuses.size() + "");
+                    if (mListFriendStatuses.size()!=0) {
+                        for (int i = 0; i < mListFriendStatuses.size(); i++) {
+                            LogUtils.e(i + " " + mListFriendStatuses.get(i).getText() + "\n");
+                        }
+
+                        mSinceId = mListFriendStatuses.get(0).getId();
+                        mMaxId = mListFriendStatuses.get(mListFriendStatuses.size() - 1).getId();
+
+                        LogUtils.e("最新的微博为： " + mListFriendStatuses.get(0).getText());
+                        LogUtils.e("list中最旧的微博为： " + mListFriendStatuses.get(mListFriendStatuses.size() - 1).getText());
+                        LogUtils.e("获取到的最新的微博ID为： " + mFriendSinceId);
+                        LogUtils.e("获取到的最早的微博ID为： " + mFriendMaxId);
+                    }
+                    LogUtils.e("-----------------Friend----------------------------");
+                } else {
+                    LogUtils.e("OnFinish() returned:" + response.message);
+                }
+                LogUtils.e("请求发送完毕");
+            }
+        }.get();
+
+
+    }
+
+
+
+
     public static long getmUid() {
         return mUid;
     }
+
 }

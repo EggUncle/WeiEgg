@@ -11,4 +11,7 @@ public class CWUrls {
 
     //获取用户信息，此处这个URL用来仅获取对方是否关注自己以及自己是否关注对方
     public static final String GET_USER= "https://api.weibo.com/2/users/show.json";
+
+    //获取好友微博
+    public static final String GET_FRIEND="https://api.weibo.com/2/statuses/user_timeline.json";
 }

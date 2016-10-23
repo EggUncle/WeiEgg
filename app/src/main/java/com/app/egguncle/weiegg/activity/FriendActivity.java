@@ -7,6 +7,7 @@ import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -19,6 +20,7 @@ import android.widget.TextView;
 
 import com.app.egguncle.weiegg.CWConstant;
 import com.app.egguncle.weiegg.R;
+import com.app.egguncle.weiegg.adapter.WeiboRecyclerViewAdapter;
 import com.app.egguncle.weiegg.entities.weibo.Statuses;
 import com.app.egguncle.weiegg.utils.SPUtils;
 import com.app.egguncle.weiegg.utils.WeiBoUtils;
@@ -27,6 +29,8 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.RequestManager;
 import com.sina.weibo.sdk.auth.Oauth2AccessToken;
 import com.sina.weibo.sdk.net.WeiboParameters;
+
+import java.util.List;
 
 public class FriendActivity extends AppCompatActivity {
 
@@ -37,6 +41,9 @@ public class FriendActivity extends AppCompatActivity {
     private FloatingActionButton fab;
     private Statuses mStatuse;
     private RecyclerView rcvUser;
+    private WeiboRecyclerViewAdapter mWeiboRecyclerViewAdapter;
+    private List<Statuses> mListFriendStatuses;
+    private SwipeRefreshLayout srhFriend;
 
     private ImageView ivFriendIcon;
     private TextView tvAttentionCount;
@@ -45,6 +52,8 @@ public class FriendActivity extends AppCompatActivity {
     private TextView tvRelationship;
     private ImageView ivRelationship;
     private TextView tvDescription;
+    private RecyclerView rcvFriend;
+
 
 
     private RequestManager glideRequest;
@@ -88,8 +97,7 @@ public class FriendActivity extends AppCompatActivity {
         tvRelationship = (TextView) findViewById(R.id.tv_relationship);
         ivRelationship = (ImageView) findViewById(R.id.iv_relationship);
 
-        mParameters = new WeiboParameters(CWConstant.APP_KEY);
-        mOauth2AccessToken = SPUtils.getInstance(getApplicationContext()).getToken();
+
         WeiBoUtils.getFollowMe(this,mParameters,mOauth2AccessToken.getToken(),mStatuse.getUser().getScreen_name(),tvRelationship,ivRelationship);
 
         tvDescription = (TextView) findViewById(R.id.tv_description);
@@ -98,11 +106,40 @@ public class FriendActivity extends AppCompatActivity {
         ivFriendIcon = (ImageView) findViewById(R.id.iv_friend_icon);
         glideRequest.load(mStatuse.getUser().getAvatar_large()).transform(new GlideCircleTransform(this)).into(ivFriendIcon);
 
+        rcvFriend= (RecyclerView) findViewById(R.id.rcv_friend);
+        rcvFriend.setLayoutManager(new LinearLayoutManager(this));
+        rcvFriend.setAdapter(mWeiboRecyclerViewAdapter);
+
+        srhFriend= (SwipeRefreshLayout) findViewById(R.id.srh_friend);
+        srhFriend.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                srhFriend.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        WeiBoUtils.getFriendWeiBo(FriendActivity.this,mParameters,mOauth2AccessToken.getToken(),WeiBoUtils.GET_NEW_WEIBO);
+                        mWeiboRecyclerViewAdapter.notifyDataSetChanged();
+                        srhFriend.setRefreshing(false);
+                    }
+                }, 2000);
+            }
+        });
+        srhFriend.setColorSchemeColors(getResources().getColor(android.R.color.holo_blue_bright),
+                getResources().getColor(android.R.color.holo_green_light),
+                getResources().getColor(android.R.color.holo_orange_light),
+                getResources().getColor(android.R.color.holo_red_light));
+
+
     }
 
     private void initVar() {
         mStatuse = (Statuses) getIntent().getSerializableExtra("data");
+        mParameters = new WeiboParameters(CWConstant.APP_KEY);
+        mOauth2AccessToken = SPUtils.getInstance(getApplicationContext()).getToken();
         glideRequest = Glide.with(this);
+
+        WeiBoUtils.getFriendWeiBo(this,mParameters,mOauth2AccessToken.getToken(),WeiBoUtils.GET_NEW_WEIBO);
+        mWeiboRecyclerViewAdapter=new WeiboRecyclerViewAdapter(this,WeiBoUtils.getmListFriendStatuses());
     }
 
     @Override
