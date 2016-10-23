@@ -118,4 +118,9 @@
         "For example, position the FAB to one side of stream of a cards so the FAB won’t interfere "
         "when a user tries to pick up one of cards.\n\n"
     </string>
+    <string name="title_activity_scrolling">ScrollingActivity</string>
+    <string name="title_activity_friend">FriendActivity</string>
+    <string name="attention">关注</string>
+    <string name="fans">粉丝</string>
+    <string name="weibo">微博</string>
 </resources>

@@ -3,6 +3,7 @@ package com.app.egguncle.weiegg.activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 
 import com.app.egguncle.weiegg.CWConstant;
@@ -14,7 +15,7 @@ import com.sina.weibo.sdk.auth.WeiboAuthListener;
 import com.sina.weibo.sdk.auth.sso.SsoHandler;
 import com.sina.weibo.sdk.exception.WeiboException;
 
-public class LandingPageActivity extends BaseActivity {
+public class LandingPageActivity extends AppCompatActivity {
 
     private SsoHandler mSsoHandler;
     private AuthInfo mAuthInfo;
@@ -24,8 +25,8 @@ public class LandingPageActivity extends BaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        //    setContentView(R.layout.activity_landing_page);
-        getToolbar().hide();
+        setContentView(R.layout.activity_landing_page);
+       // getToolbar().hide();
         mAuthInfo = new AuthInfo(getApplicationContext(), CWConstant.APP_KEY, CWConstant.REDIRECT_URL, CWConstant.SCOPE);
         mSsoHandler = new SsoHandler(this, mAuthInfo);
         mSPUtils = SPUtils.getInstance(getApplicationContext());
@@ -70,10 +71,10 @@ public class LandingPageActivity extends BaseActivity {
         }
     }
 
-    @Override
-    public int getLayoutId() {
-        return R.layout.activity_landing_page;
-    }
+//    @Override
+//    public int getLayoutId() {
+//        return R.layout.activity_landing_page;
+//    }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {

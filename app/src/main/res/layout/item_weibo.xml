@@ -4,109 +4,115 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_margin="@dimen/space_s"
-    android:clickable="true"
-    android:foreground="@drawable/card_foreground"
+
     android:padding="@dimen/space_m"
     card_view:cardCornerRadius="@dimen/cardview_radius">
 
     <LinearLayout
-
+        android:clickable="true"
+        android:foreground="@drawable/card_foreground"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical">
-
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="center_vertical"
-            android:orientation="horizontal"
-            android:padding="@dimen/space_s">
+            android:orientation="vertical">
 
-            <ImageView
-                android:id="@+id/iv_user_icon"
-                android:layout_width="@dimen/icon_size"
-                android:layout_height="@dimen/icon_size"
-                android:scaleType="fitXY"
-                android:src="@mipmap/ic_launcher" />
-
-            <TextView
-                android:id="@+id/tv_name"
+            <LinearLayout
+                android:id="@+id/line_user"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:paddingLeft="@dimen/space_m" />
-        </LinearLayout>
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:padding="@dimen/space_s">
 
+                <ImageView
+                    android:id="@+id/iv_user_icon"
+                    android:layout_width="@dimen/icon_size"
+                    android:layout_height="@dimen/icon_size"
+                    android:scaleType="fitXY"
+                    android:src="@mipmap/ic_launcher" />
 
-        <TextView
-            android:id="@+id/tv_weibo_content"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:paddingLeft="@dimen/space_s"
-            android:paddingRight="@dimen/space_s" />
+                <TextView
+                    android:id="@+id/tv_name"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingLeft="@dimen/space_m" />
+            </LinearLayout>
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center_vertical"
-            android:orientation="horizontal"
-            android:padding="@dimen/space_xs">
 
             <TextView
-                android:id="@+id/tv_weibo_time"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textSize="@dimen/txt_s" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text=" | "
-                android:textSize="@dimen/txt_s" />
-
-            <TextView
-                android:id="@+id/tv_weibo_from"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textSize="@dimen/txt_s" />
-
-            <TextView
-                android:layout_width="wrap_content"
+                android:id="@+id/tv_weibo_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:paddingLeft="@dimen/space_s"
-                android:text="@string/lbl_like"
-                android:textSize="@dimen/txt_s" />
+                android:paddingRight="@dimen/space_s" />
 
-            <TextView
-                android:id="@+id/tv_like_count"
-                android:layout_width="wrap_content"
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textSize="@dimen/txt_s" />
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:padding="@dimen/space_xs">
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:paddingLeft="@dimen/space_s"
-                android:text="@string/retweet"
-                android:textSize="@dimen/txt_s" />
+                <TextView
+                    android:id="@+id/tv_weibo_time"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="@dimen/txt_s" />
 
-            <TextView
-                android:id="@+id/tv_retweet_count"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textSize="@dimen/txt_s" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text=" | "
+                    android:textSize="@dimen/txt_s" />
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:paddingLeft="@dimen/space_s"
-                android:text="@string/comment"
-                android:textSize="@dimen/txt_s" />
+                <TextView
+                    android:id="@+id/tv_weibo_from"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="@dimen/txt_s" />
 
-            <TextView
-                android:id="@+id/tv_comment_count"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textSize="@dimen/txt_s" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingLeft="@dimen/space_s"
+                    android:text="@string/lbl_like"
+                    android:textSize="@dimen/txt_s" />
+
+                <TextView
+                    android:id="@+id/tv_like_count"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="@dimen/txt_s" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingLeft="@dimen/space_s"
+                    android:text="@string/retweet"
+                    android:textSize="@dimen/txt_s" />
+
+                <TextView
+                    android:id="@+id/tv_retweet_count"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="@dimen/txt_s" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingLeft="@dimen/space_s"
+                    android:text="@string/comment"
+                    android:textSize="@dimen/txt_s" />
+
+                <TextView
+                    android:id="@+id/tv_comment_count"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="@dimen/txt_s" />
+            </LinearLayout>
         </LinearLayout>
 
         <LinearLayout
@@ -115,6 +121,8 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:background="#c4c4c4"
+            android:clickable="true"
+            android:foreground="@drawable/card_foreground"
             android:orientation="vertical"
             android:visibility="gone">
 

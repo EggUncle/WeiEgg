@@ -2,10 +2,12 @@ package com.app.egguncle.weiegg.entities.weibo;
 
 import com.google.gson.annotations.SerializedName;
 
+import java.io.Serializable;
+
 /**
  * Created by egguncle on 16.10.13.
  */
-public class User {
+public class User  implements Serializable {
     //用户UID
     private long id;
     //字符串型的用户UID
@@ -31,6 +33,8 @@ public class User {
     private String profile_image_url;
     //	用户的微博统一URL地址
     private String profile_url;
+    //用户的背景图片
+    private String cover_image_phone;
     //用户的个性化域名
     private String domain;
     //	用户的微号
@@ -487,5 +491,13 @@ public class User {
 
     public int getUrank() {
         return this.urank;
+    }
+
+    public String getCover_image_phone() {
+        return cover_image_phone;
+    }
+
+    public void setCover_image_phone(String cover_image_phone) {
+        this.cover_image_phone = cover_image_phone;
     }
 }

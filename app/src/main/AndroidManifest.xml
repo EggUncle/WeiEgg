@@ -23,7 +23,7 @@
         </activity>
         <activity
             android:name=".activity.LandingPageActivity"
-            android:theme="@style/AppTheme.NoActionbar.FullScreen">
+            android:theme="@style/AppTheme.NoActionBar.FullScreen">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -36,9 +36,14 @@
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />
         <activity
-            android:name=".activity.UserActivity"
-            android:label="@string/title_activity_user"
-            android:theme="@style/AppTheme"></activity>
+            android:name=".activity.FriendActivity"
+            android:label="@string/title_activity_friend"
+            android:parentActivityName=".activity.HomePageActivity"
+            android:theme="@style/AppTheme">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.app.egguncle.weiegg.activity.HomePageActivity" />
+        </activity>
     </application>
 
 </manifest>

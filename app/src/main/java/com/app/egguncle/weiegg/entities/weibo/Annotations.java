@@ -1,9 +1,11 @@
 package com.app.egguncle.weiegg.entities.weibo;
 
+import java.io.Serializable;
+
 /**
  * Created by egguncle on 16.10.13.
  */
-public class Annotations
+public class Annotations  implements Serializable
 {
     private int shooting;
 

@@ -1,11 +1,12 @@
 package com.app.egguncle.weiegg.entities.weibo;
 
+import java.io.Serializable;
 import java.util.List;
 
 /**
  * Created by egguncle on 16.10.13.
  */
-public class Statuses {
+public class Statuses  implements Serializable {
     //微博创建时间
     private String created_at;
     //微博ID

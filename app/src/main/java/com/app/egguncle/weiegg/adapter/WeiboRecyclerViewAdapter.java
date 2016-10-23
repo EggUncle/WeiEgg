@@ -1,6 +1,7 @@
 package com.app.egguncle.weiegg.adapter;
 
 import android.content.Context;
+import android.content.Intent;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,6 +11,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.app.egguncle.weiegg.R;
+import com.app.egguncle.weiegg.activity.FriendActivity;
 import com.app.egguncle.weiegg.entities.weibo.Statuses;
 import com.app.egguncle.weiegg.utils.LogUtils;
 import com.app.egguncle.weiegg.views.GlideCircleTransform;
@@ -31,20 +33,40 @@ public class WeiboRecyclerViewAdapter extends RecyclerView.Adapter<WeiboRecycler
     private Context mContext;
     private List<Statuses> mListStatuses;
     private RequestManager glideRequest;
+ //   private OnRecyclerViewItemClickListener mOnItemClickListener = null;
 
     public WeiboRecyclerViewAdapter(Context context, List<Statuses> statusesList) {
         mContext = context;
         mListStatuses = statusesList;
-        glideRequest =Glide.with(context);
+        glideRequest = Glide.with(context);
     }
+
+//    @Override
+//    public void onClick(View view) {
+//        if (mOnItemClickListener != null) {
+//            mOnItemClickListener.onItemClick(view, (Statuses) view.getTag(1));
+//        }
+//    }
+//
+//    public static interface OnRecyclerViewItemClickListener {
+//        void onItemClick(View view, Statuses statuses);
+//    }
+//
+//    public void setOnItemClickListener(OnRecyclerViewItemClickListener mOnItemClickListener) {
+//        this.mOnItemClickListener = mOnItemClickListener;
+//    }
 
     @Override
     public WeiboRecyclerViewAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        return new ViewHolder(LayoutInflater.from(mContext).inflate(R.layout.item_weibo, parent, false));
+        View view = LayoutInflater.from(mContext).inflate(R.layout.item_weibo, parent, false);
+        ViewHolder viewHolder = new ViewHolder(view);
+//        view.setOnClickListener(this);
+        return viewHolder;
     }
 
+
     @Override
-    public void onBindViewHolder(WeiboRecyclerViewAdapter.ViewHolder holder, int position) {
+    public void onBindViewHolder(WeiboRecyclerViewAdapter.ViewHolder holder, final int position) {
         holder.lineRetweet.setVisibility(View.GONE);
         holder.tvName.setText(mListStatuses.get(position).getUser().getScreen_name());
         holder.tvWeiboContent.setText(mListStatuses.get(position).getText());
@@ -54,9 +76,15 @@ public class WeiboRecyclerViewAdapter extends RecyclerView.Adapter<WeiboRecycler
         holder.tvRetweetCount.setText(mListStatuses.get(position).getReposts_count() + "");
         holder.tvCommentCount.setText(mListStatuses.get(position).getComments_count() + "");
 
-//        Pattern r = Pattern.compile("<a.*>.*</a>");
-//        Matcher matcher = r.matcher("");
-//        LogUtils.e("来源为:" + matcher.group(0));
+        holder.lineUser.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(mContext,FriendActivity.class);
+                intent.putExtra("data",mListStatuses.get(position));
+                mContext.startActivity(intent);
+            }
+        });
+
         glideRequest.load(mListStatuses.get(position).getUser().getProfile_image_url()).transform(new GlideCircleTransform(mContext)).into(holder.ivUserIcon);
         // 使用正则表达式获取到来源字符串中的来源
         String line = mListStatuses.get(position).getSource();
@@ -80,16 +108,9 @@ public class WeiboRecyclerViewAdapter extends RecyclerView.Adapter<WeiboRecycler
         } catch (ParseException e) {
             e.printStackTrace();
         }
-
-// 重新输出新格式
-
-
-        // df.setTimeZone(TimeZone.getTimeZone("UTC"));
-        //      String s = df.format(new Date());
-
-
-        //   LogUtils.e("头像的地址链接为： " + mListStatuses.get(position).getUser().getProfile_image_url());
-  //      Glide.with(mContext).load(mListStatuses.get(position).getUser().getProfile_image_url()).into(holder.ivUserIcon);
+        LogUtils.e("头像的原图地址链接为： " + mListStatuses.get(position).getUser().getAvatar_large());
+        //      Glide.with(mContext).load(mListStatuses.get(position).getUser().getProfile_image_url()).into(holder.ivUserIcon);
+        //如果有转发，显示被转发的微博的部分信息
         if (mListStatuses.get(position).getRetweeted_status() != null) {
             holder.lineRetweet.setVisibility(View.VISIBLE);
             holder.tvRetweetName.setText(mListStatuses.get(position).getRetweeted_status().getUser().getScreen_name());
@@ -104,6 +125,7 @@ public class WeiboRecyclerViewAdapter extends RecyclerView.Adapter<WeiboRecycler
 
     public class ViewHolder extends RecyclerView.ViewHolder {
 
+        private LinearLayout lineUser;
         private ImageView ivUserIcon;
         private TextView tvName;
         private TextView tvWeiboContent;
@@ -129,6 +151,7 @@ public class WeiboRecyclerViewAdapter extends RecyclerView.Adapter<WeiboRecycler
             lineRetweet = (LinearLayout) itemView.findViewById(R.id.line_retweet);
             tvRetweetName = (TextView) itemView.findViewById(R.id.tv_retweet_name);
             tvRetweetContent = (TextView) itemView.findViewById(R.id.tv_retweet_content);
+            lineUser = (LinearLayout) itemView.findViewById(R.id.line_user);
 
         }
     }

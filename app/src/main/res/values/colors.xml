@@ -16,4 +16,5 @@
     <color name="cw_blue_500">#5677fc</color>
     <color name="cw_black_deep">#2d3841</color>
     <color name="cw_red">#DC143F</color>
+    <color name="user_information">#ac000000</color>
 </resources>

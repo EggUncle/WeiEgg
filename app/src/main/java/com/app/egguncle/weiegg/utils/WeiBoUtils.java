@@ -1,8 +1,10 @@
 package com.app.egguncle.weiegg.utils;
 
 import android.content.Context;
+import android.widget.ImageView;
+import android.widget.TextView;
 
-import com.app.egguncle.weiegg.adapter.WeiboRecyclerViewAdapter;
+import com.app.egguncle.weiegg.R;
 import com.app.egguncle.weiegg.entities.HttpResponse;
 import com.app.egguncle.weiegg.entities.weibo.Statuses;
 import com.app.egguncle.weiegg.entities.weibo.User;
@@ -207,6 +209,42 @@ public class WeiBoUtils {
         }
 
         return mListStatuses;
+    }
+
+    public static void getFollowMe(Context context, final WeiboParameters parameters, final String accessToken, final String name, final TextView textView, final ImageView imageView) {
+        new BaseNetWork(context, CWUrls.GET_USER) {
+
+            @Override
+            public WeiboParameters onPrepare() {
+                parameters.put(WBConstants.AUTH_ACCESS_TOKEN, accessToken);
+                parameters.put("screen_name",name);
+                return parameters;
+            }
+
+            @Override
+            public void onFinish(HttpResponse response, boolean sucess) {
+                if (sucess) {
+                    Gson gson = new Gson();
+                    User user=gson.fromJson(response.response,User.class);
+                    if (user.getFollowing()&&user.getFollow_me()){
+                        textView.setText("互相关注");
+                        imageView.setImageResource(R.mipmap.each_other);
+                    }else if(user.getFollowing()&&!user.getFollow_me()){
+                        textView.setText("正关注");
+                        imageView.setImageResource(R.mipmap.following);
+                    }else if(!user.getFollowing()&&user.getFollow_me()){
+                        textView.setText("被关注");
+                        imageView.setImageResource(R.mipmap.add_following);
+                    }else if(!user.getFollowing()&&!user.getFollow_me()){
+                        textView.setText("未关注");
+                        imageView.setImageResource(R.mipmap.add_following);
+                    }
+                } else {
+                    LogUtils.e("OnFinish() returned:" + response.message);
+                }
+
+            }
+        }.get();
     }
 
     public static long getmUid() {

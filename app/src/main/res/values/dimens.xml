@@ -10,6 +10,7 @@
     <dimen name="space_xl">36dp</dimen>
     <dimen name="space_xxl">48dp</dimen>
     <dimen name="space_xxxl">72dp</dimen>
+    <dimen name="space_xxxxl">84dp</dimen>
 
     <dimen name="txt_xs">8sp</dimen>
     <dimen name="txt_s">12sp</dimen>
@@ -22,8 +23,13 @@
     <dimen name="height_divider">1px</dimen>
     <dimen name="cardview_radius">4dp</dimen>
     <dimen name="icon_size">40dp</dimen>
-    <dimen name="app_bar_height">180dp</dimen>
+    <dimen name="app_bar_height">250dp</dimen>
     <dimen name="fab_margin">16dp</dimen>
     <dimen name="text_margin">16dp</dimen>
+    <dimen name="user_information_height">45dp</dimen>
+    <dimen name="user_bar_height">60dp</dimen>
+    <dimen name="user_bar_height_2">90dp</dimen>
+    <dimen name="user_icon_size">80dp</dimen>
+    <dimen name="relationship_size">80dp</dimen>
 
 </resources>

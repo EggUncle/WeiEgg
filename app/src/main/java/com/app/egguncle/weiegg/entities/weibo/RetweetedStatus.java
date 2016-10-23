@@ -1,11 +1,12 @@
 package com.app.egguncle.weiegg.entities.weibo;
 
+import java.io.Serializable;
 import java.util.List;
 
 /**
  * Created by egguncle on 16.10.18.
  */
-public class RetweetedStatus {
+public class RetweetedStatus  implements Serializable {
 
     //微博创建时间
     private String created_at;

@@ -3,19 +3,19 @@ package com.app.egguncle.weiegg.activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.Button;
 
 import com.app.egguncle.weiegg.CWConstant;
 import com.app.egguncle.weiegg.R;
 import com.app.egguncle.weiegg.adapter.WeiboRecyclerViewAdapter;
-import com.app.egguncle.weiegg.entities.weibo.Statuses;
 import com.app.egguncle.weiegg.utils.LogUtils;
 import com.app.egguncle.weiegg.utils.SPUtils;
 import com.app.egguncle.weiegg.utils.WeiBoUtils;
@@ -23,11 +23,8 @@ import com.sina.weibo.sdk.auth.Oauth2AccessToken;
 import com.sina.weibo.sdk.net.AsyncWeiboRunner;
 import com.sina.weibo.sdk.net.WeiboParameters;
 
-import java.util.ArrayList;
-import java.util.List;
 
-
-public class HomePageActivity extends BaseActivity {
+public class HomePageActivity extends AppCompatActivity {
 
     private Button btn;
     private SPUtils mSPUtils;
@@ -41,7 +38,7 @@ public class HomePageActivity extends BaseActivity {
     private SwipeRefreshLayout srhHome;
     private RecyclerView rcvHome;
     private WeiboRecyclerViewAdapter weiboRecyclerViewAdapter;
- //   private List<Statuses> statusesList;
+    //   private List<Statuses> statusesList;
     private LinearLayoutManager mLinearLayoutManager;
     private int lastVisibleItem;
 
@@ -49,10 +46,10 @@ public class HomePageActivity extends BaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        //    setContentView(R.layout.activity_home_page);
+        setContentView(R.layout.activity_home_page);
         initVars();
         initViews();
-        //      WeiBoUtils.getUserInformation(this, mParameters, mOauth2AccessToken.getToken());
+   //     WeiBoUtils.getUserInformation(this, mParameters, mOauth2AccessToken.getToken());
         rcvHome.setAdapter(weiboRecyclerViewAdapter);
     }
 
@@ -81,7 +78,7 @@ public class HomePageActivity extends BaseActivity {
 //                LogUtils.e("你们镇定一下，我要加载数据了");
 //                WeiBoUtils.getPublicWeiBo(HomePageActivity.this, mParameters, mOauth2AccessToken.getToken(), WeiBoUtils.GET_OLD_WEIBO);
 //                weiboRecyclerViewAdapter.notifyDataSetChanged();
-               startActivity(new Intent(HomePageActivity.this,UserActivity.class));
+                startActivity(new Intent(HomePageActivity.this, FriendActivity.class));
             }
         });
         srhHome = (SwipeRefreshLayout) findViewById(R.id.srh_home);
@@ -133,12 +130,13 @@ public class HomePageActivity extends BaseActivity {
             }
         });
 
+
     }
 
-    @Override
-    public int getLayoutId() {
-        return R.layout.activity_home_page;
-    }
+//    @Override
+//    public int getLayoutId() {
+//        return R.layout.activity_home_page;
+//    }
 
 
 }
