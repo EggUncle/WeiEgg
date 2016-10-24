@@ -94,9 +94,9 @@ public class WeiboRecyclerViewAdapter extends RecyclerView.Adapter<WeiboRecycler
         if (m.find()) {
             String source = m.group().substring(1, m.group(0).length() - 1);
             holder.tvWeiboFrom.setText(source);
-            LogUtils.e("来源为:" + source);
+          //  LogUtils.e("来源为:" + source);
         } else {
-            LogUtils.e("解析失败");
+         //   LogUtils.e("解析失败");
         }
 
         SimpleDateFormat dateFormat = new SimpleDateFormat("E MMM dd HH:mm:ss Z yyyy");
@@ -108,7 +108,7 @@ public class WeiboRecyclerViewAdapter extends RecyclerView.Adapter<WeiboRecycler
         } catch (ParseException e) {
             e.printStackTrace();
         }
-        LogUtils.e("头像的原图地址链接为： " + mListStatuses.get(position).getUser().getAvatar_large());
+   //     LogUtils.e("头像的原图地址链接为： " + mListStatuses.get(position).getUser().getAvatar_large());
         //      Glide.with(mContext).load(mListStatuses.get(position).getUser().getProfile_image_url()).into(holder.ivUserIcon);
         //如果有转发，显示被转发的微博的部分信息
         if (mListStatuses.get(position).getRetweeted_status() != null) {

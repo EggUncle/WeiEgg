@@ -5,6 +5,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.app.egguncle.weiegg.R;
+import com.app.egguncle.weiegg.adapter.WeiboRecyclerViewAdapter;
 import com.app.egguncle.weiegg.entities.HttpResponse;
 import com.app.egguncle.weiegg.entities.weibo.Statuses;
 import com.app.egguncle.weiegg.entities.weibo.User;
@@ -40,6 +41,10 @@ public class WeiBoUtils {
     public final static int GET_NEW_WEIBO = 1;
     public final static int GET_OLD_WEIBO = 2;
 
+    public static boolean mLoading = false; //是否正在加载数据
+
+    public static User mUser;
+
     /**
      * 用于获取新的微博
      *
@@ -48,7 +53,7 @@ public class WeiBoUtils {
      * @param accessToken
      * @param requestType 请求类型 ：GET_NEW_WEIBO获取新微博，GET_OLD_WEIBO获取更早的微博
      */
-    public static void getPublicWeiBo(final Context context, final WeiboParameters parameters, final String accessToken, final int requestType) {
+    public static void getPublicWeiBo(final Context context, final WeiboParameters parameters, final String accessToken, final int requestType, final WeiboRecyclerViewAdapter weiboRecyclerViewAdapter) {
 
         new BaseNetWork(context, CWUrls.HOME_TIME_LINE) {
 
@@ -64,7 +69,7 @@ public class WeiBoUtils {
                 if (requestType == GET_OLD_WEIBO) {
                     //在请求中添加max_id参数，这样请求的时候就会返回早一些的数据，不会重复请求已经获取的数据
                     LogUtils.e("参数中的max_id为： " + mMaxId);
-                    parameters.put("max_id", mMaxId);
+                    parameters.put("max_id", mMaxId - 1);
                 }
                 return parameters;
             }
@@ -79,14 +84,21 @@ public class WeiBoUtils {
                         if (mListStatuses == null) {
                             mListStatuses = weiBoRoot.getStatuses();
                         } else {
-                            for (int i = 0; i < weiBoRoot.getStatuses().size(); i++) {
-                                if (requestType == GET_NEW_WEIBO) {
+
+
+                            if (requestType == GET_NEW_WEIBO) {
+                                for (int i = 0; i < weiBoRoot.getStatuses().size(); i++) {
                                     mListStatuses.add(i, weiBoRoot.getStatuses().get(i));
+                                    LogUtils.e("获取到的新微博为：" + weiBoRoot.getStatuses().get(i).getText() + "\n");
                                 }
-                                if (requestType == GET_OLD_WEIBO) {
-                                    mListStatuses.add(weiBoRoot.getStatuses().get(i));
                                 }
-                            }
+                            if (requestType == GET_OLD_WEIBO) {
+                                for (int i = 0; i < weiBoRoot.getStatuses().size(); i++) {
+                                    mListStatuses.add(mListStatuses.size(), weiBoRoot.getStatuses().get(i));
+                                    LogUtils.e("获取到的较早时间的新微博为：" + weiBoRoot.getStatuses().get(i).getText() + "\n");
+                                }
+                                }
+
                         }
                     }
                     LogUtils.e("---------------------------------------------");
@@ -94,7 +106,7 @@ public class WeiBoUtils {
                     for (int i =0 ;i<mListStatuses.size();i++){
                         LogUtils.e(i+" "+mListStatuses.get(i).getText() +"\n");
                     }
-
+                    weiboRecyclerViewAdapter.notifyDataSetChanged();
                     mSinceId = mListStatuses.get(0).getId();
                     mMaxId = mListStatuses.get(mListStatuses.size() - 1).getId();
 
@@ -160,8 +172,8 @@ public class WeiBoUtils {
                 if (sucess) {
                     LogUtils.e("s =================== " + response.response);
                     Gson gson = new Gson();
-                    User user = gson.fromJson(response.response, User.class);
-                    LogUtils.e("d ==================== " + user.getScreen_name());
+                    mUser = gson.fromJson(response.response, User.class);
+                    LogUtils.e("用户名字是 " + mUser.getScreen_name());
                 } else {
                     LogUtils.e("OnFinish() returned:" + response.message);
                 }
@@ -332,6 +344,10 @@ public class WeiBoUtils {
 
     public static long getmUid() {
         return mUid;
+    }
+
+    public static User getmUser() {
+        return mUser;
     }
 
 }

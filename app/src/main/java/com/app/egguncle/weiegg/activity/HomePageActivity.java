@@ -1,16 +1,18 @@
 package com.app.egguncle.weiegg.activity;
 
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Color;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.design.widget.AppBarLayout;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.view.View;
-import android.widget.AdapterView;
 import android.widget.Button;
 
 import com.app.egguncle.weiegg.CWConstant;
@@ -43,6 +45,9 @@ public class HomePageActivity extends AppCompatActivity {
     private int lastVisibleItem;
 
 
+    private AppBarLayout appbar;
+    private Toolbar toolbar;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -50,7 +55,7 @@ public class HomePageActivity extends AppCompatActivity {
 
         initVars();
         initViews();
-   //     WeiBoUtils.getUserInformation(this, mParameters, mOauth2AccessToken.getToken());
+        WeiBoUtils.getUserInformation(this, mParameters, mOauth2AccessToken.getToken());
         rcvHome.setAdapter(weiboRecyclerViewAdapter);
     }
 
@@ -64,21 +69,27 @@ public class HomePageActivity extends AppCompatActivity {
         Boolean isLogin = sharedPreferences.getBoolean("IS_LOGIN", false);
         LogUtils.e(accessToken);
 
-
-        WeiBoUtils.getPublicWeiBo(this, mParameters, mOauth2AccessToken.getToken(), WeiBoUtils.GET_NEW_WEIBO);
-        WeiBoUtils.getUid(this, mParameters, mOauth2AccessToken.getToken());
         weiboRecyclerViewAdapter = new WeiboRecyclerViewAdapter(HomePageActivity.this, WeiBoUtils.getmListStatuses());
+        WeiBoUtils.getPublicWeiBo(this, mParameters, mOauth2AccessToken.getToken(), WeiBoUtils.GET_NEW_WEIBO,weiboRecyclerViewAdapter);
+        WeiBoUtils.getUid(this, mParameters, mOauth2AccessToken.getToken());
+
     }
 
 
     private void initViews() {
+
+        appbar = (AppBarLayout) findViewById(R.id.appbar);
+        toolbar = (Toolbar) findViewById(R.id.toolbar);
+        toolbar.setTitle(R.string.app_name);
+        toolbar.setTitleTextColor(Color.WHITE);
+
         btn = (Button) findViewById(R.id.btn);
         btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 //                LogUtils.e("你们镇定一下，我要加载数据了");
-                WeiBoUtils.getPublicWeiBo(HomePageActivity.this, mParameters, mOauth2AccessToken.getToken(), WeiBoUtils.GET_NEW_WEIBO);
-                weiboRecyclerViewAdapter.notifyDataSetChanged();
+//                WeiBoUtils.getPublicWeiBo(HomePageActivity.this, mParameters, mOauth2AccessToken.getToken(), WeiBoUtils.GET_NEW_WEIBO,weiboRecyclerViewAdapter);
+//                weiboRecyclerViewAdapter.notifyDataSetChanged();
             }
         });
         srhHome = (SwipeRefreshLayout) findViewById(R.id.srh_home);
@@ -94,7 +105,7 @@ public class HomePageActivity extends AppCompatActivity {
                 srhHome.postDelayed(new Runnable() {
                     @Override
                     public void run() {
-                        WeiBoUtils.getPublicWeiBo(HomePageActivity.this, mParameters, mOauth2AccessToken.getToken(), WeiBoUtils.GET_NEW_WEIBO);
+                        WeiBoUtils.getPublicWeiBo(HomePageActivity.this, mParameters, mOauth2AccessToken.getToken(), WeiBoUtils.GET_NEW_WEIBO,weiboRecyclerViewAdapter);
                         weiboRecyclerViewAdapter.notifyDataSetChanged();
                         srhHome.setRefreshing(false);
                     }
@@ -117,7 +128,7 @@ public class HomePageActivity extends AppCompatActivity {
                 if (newState == RecyclerView.SCROLL_STATE_IDLE
                         && lastVisibleItem + 2 >= mLinearLayoutManager.getItemCount()) {
                     LogUtils.e("你们镇定一下，我要加载数据了");
-                    WeiBoUtils.getPublicWeiBo(HomePageActivity.this, mParameters, mOauth2AccessToken.getToken(), WeiBoUtils.GET_OLD_WEIBO);
+                    WeiBoUtils.getPublicWeiBo(HomePageActivity.this, mParameters, mOauth2AccessToken.getToken(), WeiBoUtils.GET_OLD_WEIBO,weiboRecyclerViewAdapter);
                     weiboRecyclerViewAdapter.notifyDataSetChanged();
                 }
             }
@@ -136,6 +147,29 @@ public class HomePageActivity extends AppCompatActivity {
 //    @Override
 //    public int getLayoutId() {
 //        return R.layout.activity_home_page;
+//    }
+
+    //使用异步加载来处理一下第一次的数据显示
+//    private class MyAsyncTask extends AsyncTask<Void, Integer, Void> {
+//
+//        @Override
+//        protected void onPreExecute() {
+//            super.onPreExecute();
+//            srhHome.setRefreshing(true);
+//        }
+//
+//        @Override
+//        protected Void doInBackground(Void... voids) {
+//            WeiBoUtils.getPublicWeiBo(HomePageActivity.this, mParameters, mOauth2AccessToken.getToken(), WeiBoUtils.GET_NEW_WEIBO,weiboRecyclerViewAdapter);
+//
+//            return null;
+//        }
+//
+//        @Override
+//        protected void onPostExecute(Void aVoid) {
+//            super.onPostExecute(aVoid);
+//            weiboRecyclerViewAdapter.notifyDataSetChanged();
+//        }
 //    }
 
 
