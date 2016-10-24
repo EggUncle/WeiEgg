@@ -41,7 +41,9 @@ public class WeiBoUtils {
     public final static int GET_NEW_WEIBO = 1;
     public final static int GET_OLD_WEIBO = 2;
 
-    public static boolean mLoading = false; //是否正在加载数据
+    //是否正在加载数据,主要用于在刷新微博的时候，当请求还没有得到相应的时候，since_id或者max_id都还没有发生变化，
+    // 此时如果再次请求，就可能会发出两个一样的请求，返回一样的数据
+    //  public static boolean mLoadingKey = false;
 
     public static User mUser;
 
@@ -77,6 +79,8 @@ public class WeiBoUtils {
             @Override
             public void onFinish(HttpResponse response, boolean sucess) {
                 if (sucess) {
+
+
                     LogUtils.e("返回的数据为 " + response.response);
                     Gson gson = new Gson();
                     WeiBoRoot weiBoRoot = gson.fromJson(response.response, WeiBoRoot.class);
@@ -88,23 +92,26 @@ public class WeiBoUtils {
 
                             if (requestType == GET_NEW_WEIBO) {
                                 for (int i = 0; i < weiBoRoot.getStatuses().size(); i++) {
+                                    if (weiBoRoot.getStatuses().get(i).getId()<mSinceId) break;  //防止添加重复的数据进去
+
                                     mListStatuses.add(i, weiBoRoot.getStatuses().get(i));
                                     LogUtils.e("获取到的新微博为：" + weiBoRoot.getStatuses().get(i).getText() + "\n");
                                 }
                                 }
                             if (requestType == GET_OLD_WEIBO) {
                                 for (int i = 0; i < weiBoRoot.getStatuses().size(); i++) {
+                                    if (weiBoRoot.getStatuses().get(i).getId()>mMaxId) break;//防止添加重复的数据进去
                                     mListStatuses.add(mListStatuses.size(), weiBoRoot.getStatuses().get(i));
                                     LogUtils.e("获取到的较早时间的新微博为：" + weiBoRoot.getStatuses().get(i).getText() + "\n");
                                 }
                                 }
 
                         }
-                    }
+                        }
                     LogUtils.e("---------------------------------------------");
                     LogUtils.e(mListStatuses.size() + "");
-                    for (int i =0 ;i<mListStatuses.size();i++){
-                        LogUtils.e(i+" "+mListStatuses.get(i).getText() +"\n");
+                    for (int i = 0; i < mListStatuses.size(); i++) {
+                        LogUtils.e(i + " " + mListStatuses.get(i).getText() + "\n");
                     }
                     weiboRecyclerViewAdapter.notifyDataSetChanged();
                     mSinceId = mListStatuses.get(0).getId();
@@ -116,6 +123,8 @@ public class WeiBoUtils {
                     LogUtils.e("获取到的最早的微博ID为： " + mMaxId);
 
                     LogUtils.e("---------------------------------------------");
+
+
 
                 } else {
                     LogUtils.e("OnFinish() returned:" + response.message);

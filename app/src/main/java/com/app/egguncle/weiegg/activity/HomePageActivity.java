@@ -126,7 +126,7 @@ public class HomePageActivity extends AppCompatActivity {
                 //0：当前屏幕停止滚动；1时：屏幕在滚动 且 用户仍在触碰或手指还在屏幕上；2时：随用户的操作，屏幕上产生的惯性滑动；
                 // 滑动状态停止并且剩余少于两个item时，自动加载下一页
                 if (newState == RecyclerView.SCROLL_STATE_IDLE
-                        && lastVisibleItem + 2 >= mLinearLayoutManager.getItemCount()) {
+                        && lastVisibleItem + 5 >= mLinearLayoutManager.getItemCount()) {
                     LogUtils.e("你们镇定一下，我要加载数据了");
                     WeiBoUtils.getPublicWeiBo(HomePageActivity.this, mParameters, mOauth2AccessToken.getToken(), WeiBoUtils.GET_OLD_WEIBO,weiboRecyclerViewAdapter);
                     weiboRecyclerViewAdapter.notifyDataSetChanged();
