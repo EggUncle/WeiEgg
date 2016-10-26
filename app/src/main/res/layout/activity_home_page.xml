@@ -53,7 +53,7 @@
         android:layout_marginRight="@dimen/space_l"
         android:layout_marginBottom="@dimen/space_l"
         android:src="@android:drawable/ic_dialog_email"
-
+        app:layout_behavior="com.app.egguncle.weiegg.behavior.FabBehavior"
         android:layout_gravity="bottom|right" />
 
 

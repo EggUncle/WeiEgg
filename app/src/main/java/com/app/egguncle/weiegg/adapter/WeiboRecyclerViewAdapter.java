@@ -23,6 +23,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -102,8 +103,9 @@ public class WeiboRecyclerViewAdapter extends RecyclerView.Adapter<WeiboRecycler
          //   LogUtils.e("解析失败");
         }
 
-        SimpleDateFormat dateFormat = new SimpleDateFormat("E MMM dd HH:mm:ss Z yyyy");
+        SimpleDateFormat dateFormat = new SimpleDateFormat("E MMM d HH:mm:ss Z yyyy", Locale.ENGLISH);
         try {
+         //   LogUtils.e(mListStatuses.get(position).getCreated_at());
             Date date = dateFormat.parse(mListStatuses.get(position).getCreated_at());
             SimpleDateFormat needFormat = new SimpleDateFormat("HH:mm");
             String s = needFormat.format(date);
@@ -111,28 +113,32 @@ public class WeiboRecyclerViewAdapter extends RecyclerView.Adapter<WeiboRecycler
         } catch (ParseException e) {
             e.printStackTrace();
         }
-   //     LogUtils.e("头像的原图地址链接为： " + mListStatuses.get(position).getUser().getAvatar_large());
-        //      Glide.with(mContext).load(mListStatuses.get(position).getUser().getProfile_image_url()).into(holder.ivUserIcon);
+
         //如果有转发，显示被转发的微博的部分信息
         if (mListStatuses.get(position).getRetweeted_status() != null) {
             holder.lineRetweet.setVisibility(View.VISIBLE);
             holder.tvRetweetName.setText(mListStatuses.get(position).getRetweeted_status().getUser().getScreen_name());
             holder.tvRetweetContent.setText(mListStatuses.get(position).getRetweeted_status().getText());
             if(mListStatuses.get(position).getRetweeted_status().getPic_urls()!=null){
+
                 mLinearLayoutManager = new LinearLayoutManager(mContext, LinearLayoutManager.HORIZONTAL, false);
-                holder.lineImages.setVisibility(View.VISIBLE);
                 holder.rcvImages.setLayoutManager(mLinearLayoutManager);
-             //   holder.rcvImages.setHasFixedSize(true);
+                holder.rcvImages.setHasFixedSize(true);
+                for (int i = 0; i < mListStatuses.get(position).getRetweeted_status().getPic_urls().size(); i++) {
+                    LogUtils.e("被转发的微博中的图片为：" + mListStatuses.get(position).getRetweeted_status().getPic_urls().get(i).getThumbnail_pic());
+                }
                 holder.rcvImages.setAdapter(new WeiboImagesRecyclerAdapter(mContext, mListStatuses.get(position).getRetweeted_status().getPic_urls()));
+                holder.rcvImages.setVisibility(View.VISIBLE);
+          //      holder.lineImages.setVisibility(View.VISIBLE);
             }
         }
         if (mListStatuses.get(position).getPic_urls() != null) {
             //用于item中图片的显示
             mLinearLayoutManager = new LinearLayoutManager(mContext, LinearLayoutManager.HORIZONTAL, false);
-            holder.lineImages.setVisibility(View.VISIBLE);
             holder.rcvImages.setLayoutManager(mLinearLayoutManager);
-       //     holder.rcvImages.setHasFixedSize(true);
+            holder.rcvImages.setHasFixedSize(true);
             holder.rcvImages.setAdapter(new WeiboImagesRecyclerAdapter(mContext, mListStatuses.get(position).getPic_urls()));
+            holder.rcvImages.setVisibility(View.VISIBLE);
         }
     }
 
@@ -155,7 +161,7 @@ public class WeiboRecyclerViewAdapter extends RecyclerView.Adapter<WeiboRecycler
         private LinearLayout lineRetweet;
         private TextView tvRetweetName;
         private TextView tvRetweetContent;
-        private LinearLayout lineImages;
+      //  private LinearLayout lineImages;
         private RecyclerView rcvImages;
 
 
@@ -176,7 +182,7 @@ public class WeiboRecyclerViewAdapter extends RecyclerView.Adapter<WeiboRecycler
             lineRetweet = (LinearLayout) itemView.findViewById(R.id.line_retweet);
             tvRetweetName = (TextView) itemView.findViewById(R.id.tv_retweet_name);
             tvRetweetContent = (TextView) itemView.findViewById(R.id.tv_retweet_content);
-            lineImages = (LinearLayout) itemView.findViewById(R.id.line_images);
+   //         lineImages = (LinearLayout) itemView.findViewById(R.id.line_images);
             rcvImages = (RecyclerView) itemView.findViewById(R.id.rcv_images);
 
         }
