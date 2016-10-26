@@ -28,7 +28,6 @@ import com.sina.weibo.sdk.net.WeiboParameters;
 
 public class HomePageActivity extends AppCompatActivity {
 
-    private Button btn;
     private SPUtils mSPUtils;
     private Oauth2AccessToken mOauth2AccessToken;
     //  private EditText editText;
@@ -82,16 +81,6 @@ public class HomePageActivity extends AppCompatActivity {
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         toolbar.setTitle(R.string.app_name);
         toolbar.setTitleTextColor(Color.WHITE);
-
-        btn = (Button) findViewById(R.id.btn);
-        btn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-//                LogUtils.e("你们镇定一下，我要加载数据了");
-//                WeiBoUtils.getPublicWeiBo(HomePageActivity.this, mParameters, mOauth2AccessToken.getToken(), WeiBoUtils.GET_NEW_WEIBO,weiboRecyclerViewAdapter);
-//                weiboRecyclerViewAdapter.notifyDataSetChanged();
-            }
-        });
         srhHome = (SwipeRefreshLayout) findViewById(R.id.srh_home);
         rcvHome = (RecyclerView) findViewById(R.id.rcv_home);
         mLinearLayoutManager = new LinearLayoutManager(this);

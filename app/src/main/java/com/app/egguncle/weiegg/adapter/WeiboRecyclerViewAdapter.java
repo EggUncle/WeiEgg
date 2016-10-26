@@ -2,6 +2,7 @@ package com.app.egguncle.weiegg.adapter;
 
 import android.content.Context;
 import android.content.Intent;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -33,12 +34,16 @@ public class WeiboRecyclerViewAdapter extends RecyclerView.Adapter<WeiboRecycler
     private Context mContext;
     private List<Statuses> mListStatuses;
     private RequestManager glideRequest;
+    private LinearLayoutManager mLinearLayoutManager;
+
  //   private OnRecyclerViewItemClickListener mOnItemClickListener = null;
 
     public WeiboRecyclerViewAdapter(Context context, List<Statuses> statusesList) {
         mContext = context;
         mListStatuses = statusesList;
         glideRequest = Glide.with(context);
+
+
     }
 
 //    @Override
@@ -70,8 +75,6 @@ public class WeiboRecyclerViewAdapter extends RecyclerView.Adapter<WeiboRecycler
         holder.lineRetweet.setVisibility(View.GONE);
         holder.tvName.setText(mListStatuses.get(position).getUser().getScreen_name());
         holder.tvWeiboContent.setText(mListStatuses.get(position).getText());
-        //   holder.tvWeiboTime.setText(mListStatuses.get(position).getCreated_at());
-        //   holder.tvWeiboFrom.setText(mListStatuses.get(position).getSource());
         holder.tvLikeCount.setText(mListStatuses.get(position).getAttitudes_count() + "");
         holder.tvRetweetCount.setText(mListStatuses.get(position).getReposts_count() + "");
         holder.tvCommentCount.setText(mListStatuses.get(position).getComments_count() + "");
@@ -115,6 +118,21 @@ public class WeiboRecyclerViewAdapter extends RecyclerView.Adapter<WeiboRecycler
             holder.lineRetweet.setVisibility(View.VISIBLE);
             holder.tvRetweetName.setText(mListStatuses.get(position).getRetweeted_status().getUser().getScreen_name());
             holder.tvRetweetContent.setText(mListStatuses.get(position).getRetweeted_status().getText());
+            if(mListStatuses.get(position).getRetweeted_status().getPic_urls()!=null){
+                mLinearLayoutManager = new LinearLayoutManager(mContext, LinearLayoutManager.HORIZONTAL, false);
+                holder.lineImages.setVisibility(View.VISIBLE);
+                holder.rcvImages.setLayoutManager(mLinearLayoutManager);
+             //   holder.rcvImages.setHasFixedSize(true);
+                holder.rcvImages.setAdapter(new WeiboImagesRecyclerAdapter(mContext, mListStatuses.get(position).getRetweeted_status().getPic_urls()));
+            }
+        }
+        if (mListStatuses.get(position).getPic_urls() != null) {
+            //用于item中图片的显示
+            mLinearLayoutManager = new LinearLayoutManager(mContext, LinearLayoutManager.HORIZONTAL, false);
+            holder.lineImages.setVisibility(View.VISIBLE);
+            holder.rcvImages.setLayoutManager(mLinearLayoutManager);
+       //     holder.rcvImages.setHasFixedSize(true);
+            holder.rcvImages.setAdapter(new WeiboImagesRecyclerAdapter(mContext, mListStatuses.get(position).getPic_urls()));
         }
     }
 
@@ -137,9 +155,16 @@ public class WeiboRecyclerViewAdapter extends RecyclerView.Adapter<WeiboRecycler
         private LinearLayout lineRetweet;
         private TextView tvRetweetName;
         private TextView tvRetweetContent;
+        private LinearLayout lineImages;
+        private RecyclerView rcvImages;
+
+
+
+
 
         public ViewHolder(View itemView) {
             super(itemView);
+            lineUser = (LinearLayout) itemView.findViewById(R.id.line_user);
             ivUserIcon = (ImageView) itemView.findViewById(R.id.iv_user_icon);
             tvName = (TextView) itemView.findViewById(R.id.tv_name);
             tvWeiboContent = (TextView) itemView.findViewById(R.id.tv_weibo_content);
@@ -151,7 +176,8 @@ public class WeiboRecyclerViewAdapter extends RecyclerView.Adapter<WeiboRecycler
             lineRetweet = (LinearLayout) itemView.findViewById(R.id.line_retweet);
             tvRetweetName = (TextView) itemView.findViewById(R.id.tv_retweet_name);
             tvRetweetContent = (TextView) itemView.findViewById(R.id.tv_retweet_content);
-            lineUser = (LinearLayout) itemView.findViewById(R.id.line_user);
+            lineImages = (LinearLayout) itemView.findViewById(R.id.line_images);
+            rcvImages = (RecyclerView) itemView.findViewById(R.id.rcv_images);
 
         }
     }
