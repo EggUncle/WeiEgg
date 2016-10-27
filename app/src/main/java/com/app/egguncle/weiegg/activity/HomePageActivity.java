@@ -6,6 +6,7 @@ import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.AppBarLayout;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
@@ -14,6 +15,7 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.Button;
+import android.widget.Toast;
 
 import com.app.egguncle.weiegg.CWConstant;
 import com.app.egguncle.weiegg.R;
@@ -43,8 +45,9 @@ public class HomePageActivity extends AppCompatActivity {
     private LinearLayoutManager mLinearLayoutManager;
     private int lastVisibleItem;
 
-
     private AppBarLayout appbar;
+    private FloatingActionButton fabSendWeibo;
+
     private Toolbar toolbar;
 
     @Override
@@ -76,6 +79,13 @@ public class HomePageActivity extends AppCompatActivity {
 
 
     private void initViews() {
+        fabSendWeibo = (FloatingActionButton) findViewById(R.id.fab_send_weibo);
+        fabSendWeibo.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Toast.makeText(HomePageActivity.this,"send ",Toast.LENGTH_SHORT).show();
+            }
+        });
 
         appbar = (AppBarLayout) findViewById(R.id.appbar);
         toolbar = (Toolbar) findViewById(R.id.toolbar);

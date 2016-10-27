@@ -21,6 +21,7 @@ import com.bumptech.glide.RequestManager;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -36,6 +37,7 @@ public class WeiboRecyclerViewAdapter extends RecyclerView.Adapter<WeiboRecycler
     private List<Statuses> mListStatuses;
     private RequestManager glideRequest;
     private LinearLayoutManager mLinearLayoutManager;
+    private List<String> contentStringList;// 用来将微博内容分成一小段一小段，再将用户昵称部分高亮，再拼接成原来的微博内容
 
  //   private OnRecyclerViewItemClickListener mOnItemClickListener = null;
 
@@ -43,7 +45,7 @@ public class WeiboRecyclerViewAdapter extends RecyclerView.Adapter<WeiboRecycler
         mContext = context;
         mListStatuses = statusesList;
         glideRequest = Glide.with(context);
-
+        contentStringList = new ArrayList<>();
 
     }
 
@@ -84,10 +86,12 @@ public class WeiboRecyclerViewAdapter extends RecyclerView.Adapter<WeiboRecycler
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(mContext,FriendActivity.class);
+                intent.putExtra("type", "normal");
                 intent.putExtra("data",mListStatuses.get(position));
                 mContext.startActivity(intent);
             }
         });
+
 
         glideRequest.load(mListStatuses.get(position).getUser().getProfile_image_url()).transform(new GlideCircleTransform(mContext)).into(holder.ivUserIcon);
         // 使用正则表达式获取到来源字符串中的来源
@@ -103,6 +107,19 @@ public class WeiboRecyclerViewAdapter extends RecyclerView.Adapter<WeiboRecycler
          //   LogUtils.e("解析失败");
         }
 
+        String line2 = mListStatuses.get(position).getText();
+        String pattern2 = "@[\\u4e00-\\u9fa5a-zA-Z0-9_-]{4,30}";
+        Pattern r2 = Pattern.compile(pattern2);
+        Matcher m2 = r2.matcher(line2);
+    //    if (m2.find()) {
+            while (m2.find()){
+            LogUtils.e("正在解析的微博内容为："+line2);
+            LogUtils.e("名字是： " + m2.group().substring(0, m2.group().length()));}
+
+//        } else {
+//               LogUtils.e("解析失败");
+//        }
+
         SimpleDateFormat dateFormat = new SimpleDateFormat("E MMM d HH:mm:ss Z yyyy", Locale.ENGLISH);
         try {
          //   LogUtils.e(mListStatuses.get(position).getCreated_at());
@@ -114,6 +131,23 @@ public class WeiboRecyclerViewAdapter extends RecyclerView.Adapter<WeiboRecycler
             e.printStackTrace();
         }
 
+        if (mListStatuses.get(position).getRetweeted_status() != null) {
+            holder.tvRetweetName.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Intent intent = new Intent(mContext, FriendActivity.class);
+                    intent.putExtra("type", "retweet");
+                    intent.putExtra("data", mListStatuses.get(position).getRetweeted_status());
+                    mContext.startActivity(intent);
+                }
+            });
+        }
+
+        List<String> contentStringList = new ArrayList<>();
+
+
+
+
         //如果有转发，显示被转发的微博的部分信息
         if (mListStatuses.get(position).getRetweeted_status() != null) {
             holder.lineRetweet.setVisibility(View.VISIBLE);
@@ -124,12 +158,12 @@ public class WeiboRecyclerViewAdapter extends RecyclerView.Adapter<WeiboRecycler
                 mLinearLayoutManager = new LinearLayoutManager(mContext, LinearLayoutManager.HORIZONTAL, false);
                 holder.rcvImages.setLayoutManager(mLinearLayoutManager);
                 holder.rcvImages.setHasFixedSize(true);
-                for (int i = 0; i < mListStatuses.get(position).getRetweeted_status().getPic_urls().size(); i++) {
-                    LogUtils.e("被转发的微博中的图片为：" + mListStatuses.get(position).getRetweeted_status().getPic_urls().get(i).getThumbnail_pic());
-                }
-                holder.rcvImages.setAdapter(new WeiboImagesRecyclerAdapter(mContext, mListStatuses.get(position).getRetweeted_status().getPic_urls()));
+//                for (int i = 0; i < mListStatuses.get(position).getRetweeted_status().getPic_urls().size(); i++) {
+//                    LogUtils.e("被转发的微博中的图片为：" + mListStatuses.get(position).getRetweeted_status().getPic_urls().get(i).getThumbnail_pic());
+//                }
+                WeiboImagesRecyclerAdapter imageAdapter = new WeiboImagesRecyclerAdapter(mContext, mListStatuses.get(position).getRetweeted_status().getPic_urls());
+                holder.rcvImages.setAdapter(imageAdapter);
                 holder.rcvImages.setVisibility(View.VISIBLE);
-          //      holder.lineImages.setVisibility(View.VISIBLE);
             }
         }
         if (mListStatuses.get(position).getPic_urls() != null) {
@@ -142,9 +176,40 @@ public class WeiboRecyclerViewAdapter extends RecyclerView.Adapter<WeiboRecycler
         }
     }
 
+    private List<String> lightContent(String content) {
+        String strTemp = content;
+
+        //  while(strTemp.indexOf("@"))
+        content.indexOf("@");
+        content.indexOf("@", content.indexOf("@"));
+
+
+        return contentStringList;
+    }
+
     @Override
     public int getItemCount() {
         return mListStatuses == null ? 0 : mListStatuses.size();
+    }
+
+
+    /**
+     * 使用正则表达式匹配微博内容中的用户名字
+     */
+    private String highLightName(String content, int position) {
+        String line = mListStatuses.get(position).getSource();
+        String pattern = "@.*/";
+        Pattern r = Pattern.compile(pattern);
+        Matcher m = r.matcher(line);
+        if (m.find()) {
+            //    String source = m.group().substring(0, m.group(0).length() - 1);
+            return m.group();
+            //  LogUtils.e("来源为:" + source);
+        } else {
+            return null;
+            //   LogUtils.e("解析失败");
+        }
+
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
@@ -163,10 +228,6 @@ public class WeiboRecyclerViewAdapter extends RecyclerView.Adapter<WeiboRecycler
         private TextView tvRetweetContent;
       //  private LinearLayout lineImages;
         private RecyclerView rcvImages;
-
-
-
-
 
         public ViewHolder(View itemView) {
             super(itemView);

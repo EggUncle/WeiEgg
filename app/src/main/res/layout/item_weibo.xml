@@ -23,7 +23,7 @@
 
             <LinearLayout
                 android:id="@+id/line_user"
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:gravity="center_vertical"
                 android:orientation="horizontal"
@@ -45,6 +45,7 @@
 
 
             <TextView
+                android:autoLink="web"
                 android:id="@+id/tv_weibo_content"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -137,6 +138,7 @@
                 android:textColor="@color/cw_blue" />
 
             <TextView
+                android:autoLink="web"
                 android:id="@+id/tv_retweet_content"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -161,7 +163,7 @@
                 android:background="@color/cw_bg"
                 android:id="@+id/rcv_images"
                 android:layout_width="match_parent"
-                android:layout_height="@dimen/rcv_img_height"/>
+                android:layout_height="wrap_content"/>
 
         <!--</LinearLayout>-->
     </LinearLayout>

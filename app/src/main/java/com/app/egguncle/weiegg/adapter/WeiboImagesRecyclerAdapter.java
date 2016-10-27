@@ -26,10 +26,6 @@ public class WeiboImagesRecyclerAdapter extends RecyclerView.Adapter<WeiboImages
     public WeiboImagesRecyclerAdapter(Context context, List<PicUrls> imageList) {
         mContext = context;
         mImageList = imageList;
-        LogUtils.e("------------1------------");
-        for (int i=0;i<imageList.size();i++){
-            LogUtils.e(imageList.get(i).getThumbnail_pic());
-        }
     }
 
     @Override
@@ -39,13 +35,13 @@ public class WeiboImagesRecyclerAdapter extends RecyclerView.Adapter<WeiboImages
 
     @Override
     public void onBindViewHolder(WeiboImagesRecyclerAdapter.ViewHolder holder, int position) {
-        LogUtils.e("------------2------------");
         Glide.with(mContext)
                 .load(mImageList.get(position).getThumbnail_pic())
                 .override(600, 300)
                 .fitCenter()
                 .thumbnail(0.1f) //加载缩略图  为原图的十分之一
                 .into(holder.itemImage);
+
     }
 
     @Override
