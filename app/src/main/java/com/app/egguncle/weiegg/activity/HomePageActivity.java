@@ -1,6 +1,7 @@
 package com.app.egguncle.weiegg.activity;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.AsyncTask;
@@ -30,7 +31,7 @@ import com.sina.weibo.sdk.net.WeiboParameters;
 
 public class HomePageActivity extends AppCompatActivity {
 
-    private SPUtils mSPUtils;
+
     private Oauth2AccessToken mOauth2AccessToken;
     //  private EditText editText;
 
@@ -83,7 +84,7 @@ public class HomePageActivity extends AppCompatActivity {
         fabSendWeibo.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Toast.makeText(HomePageActivity.this,"send ",Toast.LENGTH_SHORT).show();
+                startActivity(new Intent(HomePageActivity.this,SendActivity.class));
             }
         });
 

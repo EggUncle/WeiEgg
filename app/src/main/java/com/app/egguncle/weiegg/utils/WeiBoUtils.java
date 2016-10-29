@@ -3,7 +3,9 @@ package com.app.egguncle.weiegg.utils;
 import android.content.Context;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.app.egguncle.weiegg.CWConstant;
 import com.app.egguncle.weiegg.R;
 import com.app.egguncle.weiegg.adapter.WeiboRecyclerViewAdapter;
 import com.app.egguncle.weiegg.entities.HttpResponse;
@@ -46,6 +48,17 @@ public class WeiBoUtils {
     //  public static boolean mLoadingKey = false;
 
     public static User mUser;
+
+    public static WeiboParameters mParameters;
+
+//    public static WeiboParameters getParameters() {
+//        if (mParameters == null) {
+//            mParameters = new WeiboParameters(CWConstant.APP_KEY);
+//            return mParameters;
+//        }else{
+//            return mParameters;
+//        }
+//    }
 
     /**
      * 用于获取新的微博
@@ -140,30 +153,27 @@ public class WeiBoUtils {
      * @param weiboContent
      * @param accessToken
      */
-    public static void sendMyWeiBo(final String weiboContent, final String accessToken) {
-//        String url = "https://api.weibo.com/2/statuses/update.json";
-//        StringRequest request = new StringRequest(Request.Method.POST, url, new Response.Listener<String>() {
-//            @Override
-//            public void onResponse(String s) {
-//                Log.v("MY_TAG", "SUCESS :" + s);
-//            }
-//        }, new Response.ErrorListener() {
-//            @Override
-//            public void onErrorResponse(VolleyError volleyError) {
-//                Log.v("MY_TAG", "Fail");
-//            }
-//        }) {
-//            @Override
-//            protected Map<String, String> getParams() throws AuthFailureError {
-//                Map<String, String> map = new HashMap<String, String>();
-//                map.put("access_token",accessToken);
-//                map.put("status", weiboContent);
-//                return map;
-//            }
-//
-//        };
-//        request.setTag("sendWeiBo");
-//        MyApplication.getHttpQueues().add(request);
+    public static void sendMyWeiBo(final Context context, final String weiboContent, final String accessToken, final WeiboParameters parameters) {
+        new BaseNetWork(context, CWUrls.SEND_WEIBO) {
+
+            @Override
+            public WeiboParameters onPrepare() {
+                parameters.put(WBConstants.AUTH_ACCESS_TOKEN, accessToken);
+                parameters.put("status", weiboContent);
+                return parameters;
+            }
+
+            @Override
+            public void onFinish(HttpResponse response, boolean sucess) {
+                if (sucess) {
+                    LogUtils.e("发送成功 " + weiboContent);
+                    Toast.makeText(context,"发送成功",Toast.LENGTH_SHORT).show();
+                } else {
+                    LogUtils.e("OnFinish() returned:" + response.message);
+                    Toast.makeText(context,"发送失败",Toast.LENGTH_SHORT).show();
+                }
+            }
+        }.post();
     }
 
     public static void getUserInformation(Context context, final WeiboParameters parameters, final String accessToken) {

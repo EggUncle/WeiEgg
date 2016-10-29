@@ -4,6 +4,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.SpannableString;
+import android.text.Spanned;
+import android.text.method.LinkMovementMethod;
+import android.text.style.ClickableSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,6 +19,7 @@ import com.app.egguncle.weiegg.R;
 import com.app.egguncle.weiegg.activity.FriendActivity;
 import com.app.egguncle.weiegg.entities.weibo.Statuses;
 import com.app.egguncle.weiegg.utils.LogUtils;
+import com.app.egguncle.weiegg.utils.MyClickableSpan;
 import com.app.egguncle.weiegg.views.GlideCircleTransform;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.RequestManager;
@@ -49,21 +54,6 @@ public class WeiboRecyclerViewAdapter extends RecyclerView.Adapter<WeiboRecycler
 
     }
 
-//    @Override
-//    public void onClick(View view) {
-//        if (mOnItemClickListener != null) {
-//            mOnItemClickListener.onItemClick(view, (Statuses) view.getTag(1));
-//        }
-//    }
-//
-//    public static interface OnRecyclerViewItemClickListener {
-//        void onItemClick(View view, Statuses statuses);
-//    }
-//
-//    public void setOnItemClickListener(OnRecyclerViewItemClickListener mOnItemClickListener) {
-//        this.mOnItemClickListener = mOnItemClickListener;
-//    }
-
     @Override
     public WeiboRecyclerViewAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(mContext).inflate(R.layout.item_weibo, parent, false);
@@ -77,7 +67,7 @@ public class WeiboRecyclerViewAdapter extends RecyclerView.Adapter<WeiboRecycler
     public void onBindViewHolder(WeiboRecyclerViewAdapter.ViewHolder holder, final int position) {
         holder.lineRetweet.setVisibility(View.GONE);
         holder.tvName.setText(mListStatuses.get(position).getUser().getScreen_name());
-        holder.tvWeiboContent.setText(mListStatuses.get(position).getText());
+        //   holder.tvWeiboContent.setText(mListStatuses.get(position).getText());
         holder.tvLikeCount.setText(mListStatuses.get(position).getAttitudes_count() + "");
         holder.tvRetweetCount.setText(mListStatuses.get(position).getReposts_count() + "");
         holder.tvCommentCount.setText(mListStatuses.get(position).getComments_count() + "");
@@ -92,44 +82,27 @@ public class WeiboRecyclerViewAdapter extends RecyclerView.Adapter<WeiboRecycler
             }
         });
 
-
+        //设置用户头像
         glideRequest.load(mListStatuses.get(position).getUser().getProfile_image_url()).transform(new GlideCircleTransform(mContext)).into(holder.ivUserIcon);
         // 使用正则表达式获取到来源字符串中的来源
-        String line = mListStatuses.get(position).getSource();
-        String pattern = ">.*<";
-        Pattern r = Pattern.compile(pattern);
-        Matcher m = r.matcher(line);
-        if (m.find()) {
-            String source = m.group().substring(1, m.group(0).length() - 1);
-            holder.tvWeiboFrom.setText(source);
-          //  LogUtils.e("来源为:" + source);
-        } else {
-         //   LogUtils.e("解析失败");
-        }
+        holder.tvWeiboFrom.setText(getSource(mListStatuses.get(position).getSource()));
 
-        String line2 = mListStatuses.get(position).getText();
-        String pattern2 = "@[\\u4e00-\\u9fa5a-zA-Z0-9_-]{4,30}";
-        Pattern r2 = Pattern.compile(pattern2);
-        Matcher m2 = r2.matcher(line2);
-    //    if (m2.find()) {
-            while (m2.find()){
-            LogUtils.e("正在解析的微博内容为："+line2);
-            LogUtils.e("名字是： " + m2.group().substring(0, m2.group().length()));}
+  //      if (mListStatuses.get(position).getText().indexOf("@") != -1) {
+            //在微博中解析出用户昵称
+            //使用正则表达式匹配出名字，再在字符串中查找名字的位置，并对微博内容进行分段，再将名字部分转换为可点击的，再将微博内容拼接起来
+            String line2 = mListStatuses.get(position).getText();
+            //匹配规则
+            String pattern2 = "@[\\u4e00-\\u9fa5a-zA-Z0-9_-]{4,30}";
+            highLightUser(line2, pattern2, holder.tvWeiboContent);
 
-//        } else {
-//               LogUtils.e("解析失败");
-//        }
+//        }else{
+            holder.tvWeiboContent.setText(mListStatuses.get(position).getText());
+   //     }
 
-        SimpleDateFormat dateFormat = new SimpleDateFormat("E MMM d HH:mm:ss Z yyyy", Locale.ENGLISH);
-        try {
-         //   LogUtils.e(mListStatuses.get(position).getCreated_at());
-            Date date = dateFormat.parse(mListStatuses.get(position).getCreated_at());
-            SimpleDateFormat needFormat = new SimpleDateFormat("HH:mm");
-            String s = needFormat.format(date);
-            holder.tvWeiboTime.setText(s);
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
+
+
+        holder.tvWeiboTime.setText(getTime(mListStatuses.get(position).getCreated_at()));
+
 
         if (mListStatuses.get(position).getRetweeted_status() != null) {
             holder.tvRetweetName.setOnClickListener(new View.OnClickListener() {
@@ -142,11 +115,6 @@ public class WeiboRecyclerViewAdapter extends RecyclerView.Adapter<WeiboRecycler
                 }
             });
         }
-
-        List<String> contentStringList = new ArrayList<>();
-
-
-
 
         //如果有转发，显示被转发的微博的部分信息
         if (mListStatuses.get(position).getRetweeted_status() != null) {
@@ -176,16 +144,8 @@ public class WeiboRecyclerViewAdapter extends RecyclerView.Adapter<WeiboRecycler
         }
     }
 
-    private List<String> lightContent(String content) {
-        String strTemp = content;
-
-        //  while(strTemp.indexOf("@"))
-        content.indexOf("@");
-        content.indexOf("@", content.indexOf("@"));
 
 
-        return contentStringList;
-    }
 
     @Override
     public int getItemCount() {
@@ -194,22 +154,82 @@ public class WeiboRecyclerViewAdapter extends RecyclerView.Adapter<WeiboRecycler
 
 
     /**
-     * 使用正则表达式匹配微博内容中的用户名字
+     * 高亮字符串中符合正则表达式的部分，此处用来高亮微博中的用户名
+     * @param content 微博内容
+     * @param pattern 正则表达式
+     * @param textContent   用来显示的textview
      */
-    private String highLightName(String content, int position) {
-        String line = mListStatuses.get(position).getSource();
-        String pattern = "@.*/";
+    private void highLightUser(String content, String pattern, TextView textContent) {
+        if (textContent.length() != 0) {
+            return;
+        }
+        textContent.setText("");
         Pattern r = Pattern.compile(pattern);
-        Matcher m = r.matcher(line);
+        Matcher m = r.matcher(content);
+        StringBuilder contentBuilder = new StringBuilder();
+        String contentTemp = content;
+        int tempContentStart = 0; //微博内容的起始位置
+        int tempContentEnd = 0;//微博内容的重点位置
+        while (m.find()) {
+            String userName = m.group().substring(0, m.group().length());
+            LogUtils.e("正在解析的微博内容为：" + content);
+            LogUtils.e("名字是： " + userName);
+            //获取用户的名字在字符串中的起始位置
+            tempContentEnd = contentTemp.indexOf(userName);
+            //将用户名部分转化成可点击的
+            SpannableString spStr = new SpannableString(userName);
+            ClickableSpan clickableSpan = new MyClickableSpan(userName);
+            spStr.setSpan(clickableSpan, 0, spStr.length(), Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
+            //    line2.replace(m2.group().substring(0, m2.group().length()),spStr);
+            //拼接字符串，从开始部分到用户名之前的位置
+            contentBuilder.append(contentTemp.substring(tempContentStart, tempContentEnd));
+            contentTemp = contentTemp.substring(tempContentEnd + spStr.length(), contentTemp.length());
+            textContent.append(contentBuilder);
+            //将可点击的用户名也拼接进去
+            //   content.append(spStr);
+            textContent.append(spStr);
+            textContent.setMovementMethod(LinkMovementMethod.getInstance());
+            //获取下一次开始的位置
+            // tempContentStart=content.length();
+        }
+    }
+
+    /**
+     * 获取微博来源
+     * @param strSource
+     * @return
+     */
+    private String getSource(String strSource){
+        String pattern = ">.*<";
+        Pattern r = Pattern.compile(pattern);
+        Matcher m = r.matcher(strSource);
         if (m.find()) {
-            //    String source = m.group().substring(0, m.group(0).length() - 1);
-            return m.group();
+            String source = m.group().substring(1, m.group(0).length() - 1);
+            return source;
             //  LogUtils.e("来源为:" + source);
         } else {
-            return null;
             //   LogUtils.e("解析失败");
+            return "未知";
         }
+    }
 
+    /**
+     * 返回正常显示的微博时间
+     * @param created_at
+     * @return
+     */
+    private String getTime(String created_at) {
+        SimpleDateFormat dateFormat = new SimpleDateFormat("E MMM d HH:mm:ss Z yyyy", Locale.ENGLISH);
+        try {
+            //   LogUtils.e(mListStatuses.get(position).getCreated_at());
+            Date date = dateFormat.parse(created_at);
+            SimpleDateFormat needFormat = new SimpleDateFormat("HH:mm");
+            String s = needFormat.format(date);
+            return s;
+        } catch (ParseException e) {
+            e.printStackTrace();
+        return "";
+        }
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {

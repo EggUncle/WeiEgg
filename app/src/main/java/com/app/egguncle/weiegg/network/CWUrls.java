@@ -14,4 +14,8 @@ public class CWUrls {
 
     //获取好友微博
     public static final String GET_FRIEND="https://api.weibo.com/2/statuses/user_timeline.json";
+
+    //发送新的微博
+    public static final String SEND_WEIBO= "https://api.weibo.com/2/statuses/update.json";
+
 }

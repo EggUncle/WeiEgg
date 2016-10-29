@@ -5,6 +5,7 @@ import android.text.TextPaint;
 import android.text.style.ClickableSpan;
 import android.util.Log;
 import android.view.View;
+import android.widget.TextView;
 
 /**
  * Created by egguncle on 16.10.27.
@@ -27,4 +28,5 @@ public class MyClickableSpan extends ClickableSpan {
     public void onClick(View view) {
         LogUtils.e(mText+" 被点击了");
     }
+
 }
