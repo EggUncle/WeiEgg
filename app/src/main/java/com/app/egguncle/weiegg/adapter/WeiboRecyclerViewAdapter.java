@@ -2,12 +2,15 @@ package com.app.egguncle.weiegg.adapter;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.SpannableString;
 import android.text.Spanned;
+import android.text.TextUtils;
 import android.text.method.LinkMovementMethod;
 import android.text.style.ClickableSpan;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,6 +26,8 @@ import com.app.egguncle.weiegg.utils.MyClickableSpan;
 import com.app.egguncle.weiegg.views.GlideCircleTransform;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.RequestManager;
+import com.bumptech.glide.request.animation.GlideAnimation;
+import com.bumptech.glide.request.target.SimpleTarget;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -38,13 +43,26 @@ import java.util.regex.Pattern;
  */
 public class WeiboRecyclerViewAdapter extends RecyclerView.Adapter<WeiboRecyclerViewAdapter.ViewHolder> {
 
+    private final static String TAG = "WeiboRecyclerAdapter";
+
     private Context mContext;
     private List<Statuses> mListStatuses;
     private RequestManager glideRequest;
     private LinearLayoutManager mLinearLayoutManager;
     private List<String> contentStringList;// 用来将微博内容分成一小段一小段，再将用户昵称部分高亮，再拼接成原来的微博内容
 
- //   private OnRecyclerViewItemClickListener mOnItemClickListener = null;
+    private  static boolean loadImg=true;
+
+    public void loadImg(){
+        loadImg=true;
+    }
+    public void stopLoadImg(){
+        loadImg=false;
+    }
+
+
+
+    //   private OnRecyclerViewItemClickListener mOnItemClickListener = null;
 
     public WeiboRecyclerViewAdapter(Context context, List<Statuses> statusesList) {
         mContext = context;
@@ -64,7 +82,10 @@ public class WeiboRecyclerViewAdapter extends RecyclerView.Adapter<WeiboRecycler
 
 
     @Override
-    public void onBindViewHolder(WeiboRecyclerViewAdapter.ViewHolder holder, final int position) {
+    public void onBindViewHolder(final WeiboRecyclerViewAdapter.ViewHolder holder, final int position) {
+        String weiboId = mListStatuses.get(position).getIdstr();
+
+
         holder.lineRetweet.setVisibility(View.GONE);
         holder.tvName.setText(mListStatuses.get(position).getUser().getScreen_name());
         //   holder.tvWeiboContent.setText(mListStatuses.get(position).getText());
@@ -75,30 +96,54 @@ public class WeiboRecyclerViewAdapter extends RecyclerView.Adapter<WeiboRecycler
         holder.lineUser.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(mContext,FriendActivity.class);
+                Intent intent = new Intent(mContext, FriendActivity.class);
                 intent.putExtra("type", "normal");
-                intent.putExtra("data",mListStatuses.get(position));
+                intent.putExtra("data", mListStatuses.get(position));
                 mContext.startActivity(intent);
             }
         });
 
+        final String iconUrl = mListStatuses.get(position).getUser().getProfile_image_url();
+        final String iconTag = (String) holder.ivUserIcon.getTag();
+        //加载图片并给图片设置tag
+        //若url和tag不同，则不加载图片
+        if (TextUtils.equals(iconTag, "") || !TextUtils.equals(iconUrl, iconTag)) {
+            //加载默认图片
+
+        }
         //设置用户头像
-        glideRequest.load(mListStatuses.get(position).getUser().getProfile_image_url()).transform(new GlideCircleTransform(mContext)).into(holder.ivUserIcon);
+        glideRequest.load(iconUrl)
+                .asBitmap()
+                .centerCrop()
+                .error(R.mipmap.ic_launcher).transform(new GlideCircleTransform(mContext))
+                .into(new SimpleTarget<Bitmap>() {
+                    @Override
+                    public void onResourceReady(Bitmap resource, GlideAnimation<? super Bitmap>
+                            glideAnimation) {
+                        Log.i(TAG, "onResourceReady: " + iconUrl);
+                        //设置tag
+                        holder.ivUserIcon.setTag(iconUrl);
+                        //加载图片
+                        holder.ivUserIcon.setImageBitmap(resource);
+                    }
+                });
+
+
+        //   glideRequest.load(mListStatuses.get(position).getUser().getProfile_image_url()).transform(new GlideCircleTransform(mContext)).into(holder.ivUserIcon);
         // 使用正则表达式获取到来源字符串中的来源
         holder.tvWeiboFrom.setText(getSource(mListStatuses.get(position).getSource()));
 
-  //      if (mListStatuses.get(position).getText().indexOf("@") != -1) {
-            //在微博中解析出用户昵称
-            //使用正则表达式匹配出名字，再在字符串中查找名字的位置，并对微博内容进行分段，再将名字部分转换为可点击的，再将微博内容拼接起来
-            String line2 = mListStatuses.get(position).getText();
-            //匹配规则
-            String pattern2 = "@[\\u4e00-\\u9fa5a-zA-Z0-9_-]{4,30}";
-            highLightUser(line2, pattern2, holder.tvWeiboContent);
+        //      if (mListStatuses.get(position).getText().indexOf("@") != -1) {
+        //在微博中解析出用户昵称
+        //使用正则表达式匹配出名字，再在字符串中查找名字的位置，并对微博内容进行分段，再将名字部分转换为可点击的，再将微博内容拼接起来
+        String line2 = mListStatuses.get(position).getText();
+        //匹配规则
+        String pattern2 = "@[\\u4e00-\\u9fa5a-zA-Z0-9_-]{4,30}";
+        highLightUser(line2, pattern2, holder.tvWeiboContent);
 
 //        }else{
-            holder.tvWeiboContent.setText(mListStatuses.get(position).getText());
-   //     }
-
+        holder.tvWeiboContent.setText(mListStatuses.get(position).getText());
+        //     }
 
 
         holder.tvWeiboTime.setText(getTime(mListStatuses.get(position).getCreated_at()));
@@ -118,33 +163,47 @@ public class WeiboRecyclerViewAdapter extends RecyclerView.Adapter<WeiboRecycler
 
         //如果有转发，显示被转发的微博的部分信息
         if (mListStatuses.get(position).getRetweeted_status() != null) {
+
             holder.lineRetweet.setVisibility(View.VISIBLE);
             holder.tvRetweetName.setText(mListStatuses.get(position).getRetweeted_status().getUser().getScreen_name());
             holder.tvRetweetContent.setText(mListStatuses.get(position).getRetweeted_status().getText());
-            if(mListStatuses.get(position).getRetweeted_status().getPic_urls()!=null){
+
+//            //判断tag是否匹配
+//            String tag = (String) holder.lineRetweet.getTag();
+//            Log.i(TAG, "onBindViewHolder: tag is "+tag);
+//            boolean tagIsSame = TextUtils.equals(weiboId, tag) || TextUtils.equals(tag, null);
+            //如果转发中带有图片
+            if (mListStatuses.get(position).getRetweeted_status().getPic_urls() != null&&loadImg) {
 
                 mLinearLayoutManager = new LinearLayoutManager(mContext, LinearLayoutManager.HORIZONTAL, false);
                 holder.rcvImages.setLayoutManager(mLinearLayoutManager);
                 holder.rcvImages.setHasFixedSize(true);
-//                for (int i = 0; i < mListStatuses.get(position).getRetweeted_status().getPic_urls().size(); i++) {
-//                    LogUtils.e("被转发的微博中的图片为：" + mListStatuses.get(position).getRetweeted_status().getPic_urls().get(i).getThumbnail_pic());
-//                }
                 WeiboImagesRecyclerAdapter imageAdapter = new WeiboImagesRecyclerAdapter(mContext, mListStatuses.get(position).getRetweeted_status().getPic_urls());
                 holder.rcvImages.setAdapter(imageAdapter);
                 holder.rcvImages.setVisibility(View.VISIBLE);
+
+                //给出现图片的item的图片显示部分设置tag
+                holder.lineRetweet.setTag(weiboId);
             }
         }
-        if (mListStatuses.get(position).getPic_urls() != null) {
-            //用于item中图片的显示
-            mLinearLayoutManager = new LinearLayoutManager(mContext, LinearLayoutManager.HORIZONTAL, false);
-            holder.rcvImages.setLayoutManager(mLinearLayoutManager);
-            holder.rcvImages.setHasFixedSize(true);
-            holder.rcvImages.setAdapter(new WeiboImagesRecyclerAdapter(mContext, mListStatuses.get(position).getPic_urls()));
-            holder.rcvImages.setVisibility(View.VISIBLE);
+        if (mListStatuses.get(position).getPic_urls().size() != 0&&loadImg) {
+            //判断tag是否匹配
+//            String tag = (String) holder.rcvImages.getTag();
+//            Log.i(TAG, "onBindViewHolder: tag is "+tag);
+        //    boolean tagIsSame = TextUtils.equals(weiboId, tag) || TextUtils.equals(tag, null);
+
+                //用于item中图片的显示
+                mLinearLayoutManager = new LinearLayoutManager(mContext, LinearLayoutManager.HORIZONTAL, false);
+                holder.rcvImages.setLayoutManager(mLinearLayoutManager);
+                holder.rcvImages.setHasFixedSize(true);
+                holder.rcvImages.setAdapter(new WeiboImagesRecyclerAdapter(mContext, mListStatuses.get(position).getPic_urls()));
+                holder.rcvImages.setVisibility(View.VISIBLE);
+
+                //给出现图片的item的图片显示部分设置tag
+                holder.rcvImages.setTag(weiboId);
+
         }
     }
-
-
 
 
     @Override
@@ -155,9 +214,10 @@ public class WeiboRecyclerViewAdapter extends RecyclerView.Adapter<WeiboRecycler
 
     /**
      * 高亮字符串中符合正则表达式的部分，此处用来高亮微博中的用户名
-     * @param content 微博内容
-     * @param pattern 正则表达式
-     * @param textContent   用来显示的textview
+     *
+     * @param content     微博内容
+     * @param pattern     正则表达式
+     * @param textContent 用来显示的textview
      */
     private void highLightUser(String content, String pattern, TextView textContent) {
         if (textContent.length() != 0) {
@@ -196,10 +256,11 @@ public class WeiboRecyclerViewAdapter extends RecyclerView.Adapter<WeiboRecycler
 
     /**
      * 获取微博来源
+     *
      * @param strSource
      * @return
      */
-    private String getSource(String strSource){
+    private String getSource(String strSource) {
         String pattern = ">.*<";
         Pattern r = Pattern.compile(pattern);
         Matcher m = r.matcher(strSource);
@@ -215,6 +276,7 @@ public class WeiboRecyclerViewAdapter extends RecyclerView.Adapter<WeiboRecycler
 
     /**
      * 返回正常显示的微博时间
+     *
      * @param created_at
      * @return
      */
@@ -228,7 +290,7 @@ public class WeiboRecyclerViewAdapter extends RecyclerView.Adapter<WeiboRecycler
             return s;
         } catch (ParseException e) {
             e.printStackTrace();
-        return "";
+            return "";
         }
     }
 
@@ -246,7 +308,7 @@ public class WeiboRecyclerViewAdapter extends RecyclerView.Adapter<WeiboRecycler
         private LinearLayout lineRetweet;
         private TextView tvRetweetName;
         private TextView tvRetweetContent;
-      //  private LinearLayout lineImages;
+        //  private LinearLayout lineImages;
         private RecyclerView rcvImages;
 
         public ViewHolder(View itemView) {
@@ -263,7 +325,7 @@ public class WeiboRecyclerViewAdapter extends RecyclerView.Adapter<WeiboRecycler
             lineRetweet = (LinearLayout) itemView.findViewById(R.id.line_retweet);
             tvRetweetName = (TextView) itemView.findViewById(R.id.tv_retweet_name);
             tvRetweetContent = (TextView) itemView.findViewById(R.id.tv_retweet_content);
-   //         lineImages = (LinearLayout) itemView.findViewById(R.id.line_images);
+            //         lineImages = (LinearLayout) itemView.findViewById(R.id.line_images);
             rcvImages = (RecyclerView) itemView.findViewById(R.id.rcv_images);
 
         }

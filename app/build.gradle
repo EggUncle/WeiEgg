@@ -2,7 +2,7 @@ apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 24
-    buildToolsVersion "24.0.0"
+    buildToolsVersion '25.0.0'
     defaultConfig {
         applicationId "com.app.egguncle.weiegg"
         minSdkVersion 21
@@ -17,7 +17,7 @@ android {
         debug {
             keyAlias 'WeiEggKey'
             keyPassword 'unicorn'
-            storeFile file('G:/AndroidOther/Key/MyKeyWei.jks')
+            storeFile file('/home/egguncle/Android/key/MyKeyWei.jks')
             storePassword 'unicorn'
         }
     }

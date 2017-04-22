@@ -1,12 +1,16 @@
 package com.app.egguncle.weiegg.utils;
 
 import android.content.Context;
+import android.content.Intent;
+import android.support.v4.content.LocalBroadcastManager;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.app.egguncle.weiegg.CWConstant;
+import com.app.egguncle.weiegg.MyApplication;
 import com.app.egguncle.weiegg.R;
+import com.app.egguncle.weiegg.activity.HomePageActivity;
 import com.app.egguncle.weiegg.adapter.WeiboRecyclerViewAdapter;
 import com.app.egguncle.weiegg.entities.HttpResponse;
 import com.app.egguncle.weiegg.entities.weibo.Statuses;
@@ -18,6 +22,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.sina.weibo.sdk.auth.Oauth2AccessToken;
 import com.sina.weibo.sdk.constant.WBConstants;
 import com.sina.weibo.sdk.net.WeiboParameters;
 
@@ -29,7 +34,12 @@ import java.util.List;
  * Created by egguncle on 16.10.16.
  * 用来进行微博相关操作的模块
  */
-public class WeiBoUtils {
+public class WeiBoUtil {
+
+
+    private static String mToken;
+    private static WeiBoUtil weiBoUtil;
+    private static LocalBroadcastManager localBroadcastManager;
 
     private static long mUid;
     private static List<Statuses> mListStatuses;//获取到的微博数据
@@ -37,8 +47,8 @@ public class WeiBoUtils {
     private static long mSinceId = 0;  //若指定此参数，则返回ID比since_id大的微博（即比since_id时间晚的微博），默认为0。
     private static long mMaxId = 0;       //若指定此参数，则返回ID小于或等于max_id的微博，默认为0。
 
-    private static long mFriendSinceId=0;  //和上面一样，但是用于获取单个用户的微博
-    private static long mFriendMaxId=0;
+    private static long mFriendSinceId = 0;  //和上面一样，但是用于获取单个用户的微博
+    private static long mFriendMaxId = 0;
 
     public final static int GET_NEW_WEIBO = 1;
     public final static int GET_OLD_WEIBO = 2;
@@ -60,33 +70,45 @@ public class WeiBoUtils {
 //        }
 //    }
 
+    public static WeiBoUtil getWeiboUtils() {
+        if (weiBoUtil == null) {
+            mParameters = new WeiboParameters(CWConstant.APP_KEY);
+            mToken = MyApplication.getSpUtils().getToken().getToken();
+            weiBoUtil = new WeiBoUtil();
+            localBroadcastManager= HomePageActivity.getLocalBroadcastManager();
+        }
+        return weiBoUtil;
+    }
+
+    private WeiBoUtil() {
+
+    }
+
     /**
      * 用于获取新的微博
      *
      * @param context
-     * @param parameters
-     * @param accessToken
      * @param requestType 请求类型 ：GET_NEW_WEIBO获取新微博，GET_OLD_WEIBO获取更早的微博
      */
-    public static void getPublicWeiBo(final Context context, final WeiboParameters parameters, final String accessToken, final int requestType, final WeiboRecyclerViewAdapter weiboRecyclerViewAdapter) {
+    public void getPublicWeiBo(final Context context, final int requestType) {
 
         new BaseNetWork(context, CWUrls.HOME_TIME_LINE) {
 
             @Override
             public WeiboParameters onPrepare() {
-                parameters.put(WBConstants.AUTH_ACCESS_TOKEN, accessToken);
-                parameters.put("count", 10);
+                mParameters.put(WBConstants.AUTH_ACCESS_TOKEN, mToken);
+                mParameters.put("count", 10);
                 if (requestType == GET_NEW_WEIBO) {
                     // 在请求中添加since_id参数，这样在请求的时候只会返回最新的数据，不会重复请求已经获取的数据
                     LogUtils.e("参数中的since_id为： " + mSinceId);
-                    parameters.put("since_id", mSinceId);
+                    mParameters.put("since_id", mSinceId);
                 }
                 if (requestType == GET_OLD_WEIBO) {
                     //在请求中添加max_id参数，这样请求的时候就会返回早一些的数据，不会重复请求已经获取的数据
                     LogUtils.e("参数中的max_id为： " + mMaxId);
-                    parameters.put("max_id", mMaxId - 1);
+                    mParameters.put("max_id", mMaxId - 1);
                 }
-                return parameters;
+                return mParameters;
             }
 
             @Override
@@ -105,28 +127,29 @@ public class WeiBoUtils {
 
                             if (requestType == GET_NEW_WEIBO) {
                                 for (int i = 0; i < weiBoRoot.getStatuses().size(); i++) {
-                                    if (weiBoRoot.getStatuses().get(i).getId()<mSinceId) break;  //防止添加重复的数据进去
+                                    if (weiBoRoot.getStatuses().get(i).getId() < mSinceId)
+                                        break;  //防止添加重复的数据进去
 
                                     mListStatuses.add(i, weiBoRoot.getStatuses().get(i));
                                     LogUtils.e("获取到的新微博为：" + weiBoRoot.getStatuses().get(i).getText() + "\n");
                                 }
-                                }
+                            }
                             if (requestType == GET_OLD_WEIBO) {
                                 for (int i = 0; i < weiBoRoot.getStatuses().size(); i++) {
-                                    if (weiBoRoot.getStatuses().get(i).getId()>mMaxId) break;//防止添加重复的数据进去
+                                    if (weiBoRoot.getStatuses().get(i).getId() > mMaxId)
+                                        break;//防止添加重复的数据进去
                                     mListStatuses.add(mListStatuses.size(), weiBoRoot.getStatuses().get(i));
                                     LogUtils.e("获取到的较早时间的新微博为：" + weiBoRoot.getStatuses().get(i).getText() + "\n");
                                 }
-                                }
+                            }
 
                         }
-                        }
+                    }
                     LogUtils.e("---------------------------------------------");
                     LogUtils.e(mListStatuses.size() + "");
                     for (int i = 0; i < mListStatuses.size(); i++) {
                         LogUtils.e(i + " " + mListStatuses.get(i).getText() + "\n");
                     }
-                    weiboRecyclerViewAdapter.notifyDataSetChanged();
                     mSinceId = mListStatuses.get(0).getId();
                     mMaxId = mListStatuses.get(mListStatuses.size() - 1).getId();
 
@@ -138,7 +161,9 @@ public class WeiBoUtils {
                     LogUtils.e("---------------------------------------------");
 
 
-
+                    //发送广播通知home界面更新数据
+                    Intent intent = new Intent(HomePageActivity.HOME_BROADCAST);
+                    localBroadcastManager.sendBroadcast(intent);
                 } else {
                     LogUtils.e("OnFinish() returned:" + response.message);
                 }
@@ -151,39 +176,38 @@ public class WeiBoUtils {
      * 发送微博
      *
      * @param weiboContent
-     * @param accessToken
      */
-    public static void sendMyWeiBo(final Context context, final String weiboContent, final String accessToken, final WeiboParameters parameters) {
+    public void sendMyWeiBo(final Context context, final String weiboContent) {
         new BaseNetWork(context, CWUrls.SEND_WEIBO) {
 
             @Override
             public WeiboParameters onPrepare() {
-                parameters.put(WBConstants.AUTH_ACCESS_TOKEN, accessToken);
-                parameters.put("status", weiboContent);
-                return parameters;
+                mParameters.put(WBConstants.AUTH_ACCESS_TOKEN, mToken);
+                mParameters.put("status", weiboContent);
+                return mParameters;
             }
 
             @Override
             public void onFinish(HttpResponse response, boolean sucess) {
                 if (sucess) {
                     LogUtils.e("发送成功 " + weiboContent);
-                    Toast.makeText(context,"发送成功",Toast.LENGTH_SHORT).show();
+                    Toast.makeText(context, "发送成功", Toast.LENGTH_SHORT).show();
                 } else {
                     LogUtils.e("OnFinish() returned:" + response.message);
-                    Toast.makeText(context,"发送失败",Toast.LENGTH_SHORT).show();
+                    Toast.makeText(context, "发送失败", Toast.LENGTH_SHORT).show();
                 }
             }
         }.post();
     }
 
-    public static void getUserInformation(Context context, final WeiboParameters parameters, final String accessToken) {
+    public void getUserInformation(Context context) {
         new BaseNetWork(context, CWUrls.USERS_SHOW) {
 
             @Override
             public WeiboParameters onPrepare() {
-                parameters.put(WBConstants.AUTH_ACCESS_TOKEN, accessToken);
-                parameters.put(WBConstants.GAME_PARAMS_UID, mUid);
-                return parameters;
+                mParameters.put(WBConstants.AUTH_ACCESS_TOKEN, mToken);
+                mParameters.put(WBConstants.GAME_PARAMS_UID, mUid);
+                return mParameters;
             }
 
             @Override
@@ -204,16 +228,14 @@ public class WeiBoUtils {
      * 获取用户的UID，结果存于UID对象中
      *
      * @param context
-     * @param parameters
-     * @param accessToken
      */
-    public static void getUid(Context context, final WeiboParameters parameters, final String accessToken) {
+    public void getUid(Context context) {
         new BaseNetWork(context, CWUrls.GET_UID) {
 
             @Override
             public WeiboParameters onPrepare() {
-                parameters.put(WBConstants.AUTH_ACCESS_TOKEN, accessToken);
-                return parameters;
+                mParameters.put(WBConstants.AUTH_ACCESS_TOKEN, mToken);
+                return mParameters;
             }
 
             @Override
@@ -239,14 +261,15 @@ public class WeiBoUtils {
     }
 
 
-    public static List<Statuses> getmListStatuses() {
+    public List<Statuses> getmListStatuses() {
         if (mListStatuses == null) {
             mListStatuses = new ArrayList<>();
         }
 
         return mListStatuses;
     }
-    public static List<Statuses> getmListFriendStatuses() {
+
+    public List<Statuses> getmListFriendStatuses() {
         if (mListFriendStatuses == null) {
             mListFriendStatuses = new ArrayList<>();
         }
@@ -254,31 +277,32 @@ public class WeiBoUtils {
         return mListFriendStatuses;
     }
 
-    public static void getFollowMe(Context context, final WeiboParameters parameters, final String accessToken, final String name, final TextView textView, final ImageView imageView) {
+    //获取关注状态
+    public void getFollowMe(Context context, final String name, final TextView textView, final ImageView imageView) {
         new BaseNetWork(context, CWUrls.GET_USER) {
 
             @Override
             public WeiboParameters onPrepare() {
-                parameters.put(WBConstants.AUTH_ACCESS_TOKEN, accessToken);
-                parameters.put("screen_name",name);
-                return parameters;
+                mParameters.put(WBConstants.AUTH_ACCESS_TOKEN, mToken);
+                mParameters.put("screen_name", name);
+                return mParameters;
             }
 
             @Override
             public void onFinish(HttpResponse response, boolean sucess) {
                 if (sucess) {
                     Gson gson = new Gson();
-                    User user=gson.fromJson(response.response,User.class);
-                    if (user.getFollowing()&&user.getFollow_me()){
+                    User user = gson.fromJson(response.response, User.class);
+                    if (user.getFollowing() && user.getFollow_me()) {
                         textView.setText("互相关注");
                         imageView.setImageResource(R.mipmap.each_other);
-                    }else if(user.getFollowing()&&!user.getFollow_me()){
+                    } else if (user.getFollowing() && !user.getFollow_me()) {
                         textView.setText("正关注");
                         imageView.setImageResource(R.mipmap.following);
-                    }else if(!user.getFollowing()&&user.getFollow_me()){
+                    } else if (!user.getFollowing() && user.getFollow_me()) {
                         textView.setText("被关注");
                         imageView.setImageResource(R.mipmap.add_following);
-                    }else if(!user.getFollowing()&&!user.getFollow_me()){
+                    } else if (!user.getFollowing() && !user.getFollow_me()) {
                         textView.setText("未关注");
                         imageView.setImageResource(R.mipmap.add_following);
                     }
@@ -290,13 +314,13 @@ public class WeiBoUtils {
         }.get();
     }
 
-    public static void getFriendWeiBo(final Context context, final WeiboParameters parameters, final String accessToken, final int requestType) {
+    public void getFriendWeiBo(final Context context, final int requestType) {
 
         new BaseNetWork(context, CWUrls.GET_FRIEND) {
 
             @Override
             public WeiboParameters onPrepare() {
-                parameters.put(WBConstants.AUTH_ACCESS_TOKEN, accessToken);
+                mParameters.put(WBConstants.AUTH_ACCESS_TOKEN, mToken);
 
 //                parameters.put("count", 10);
 //                if (requestType == GET_NEW_WEIBO) {
@@ -309,7 +333,7 @@ public class WeiBoUtils {
 //                    LogUtils.e("参数中的max_id为： " + mFriendMaxId);
 //                    parameters.put("max_id", mFriendMaxId);
 //                }
-                return parameters;
+                return mParameters;
             }
 
             @Override
@@ -334,7 +358,7 @@ public class WeiBoUtils {
                     }
                     LogUtils.e("------------------Friend---------------------------");
                     LogUtils.e(mListFriendStatuses.size() + "");
-                    if (mListFriendStatuses.size()!=0) {
+                    if (mListFriendStatuses.size() != 0) {
                         for (int i = 0; i < mListFriendStatuses.size(); i++) {
                             LogUtils.e(i + " " + mListFriendStatuses.get(i).getText() + "\n");
                         }
@@ -359,13 +383,11 @@ public class WeiBoUtils {
     }
 
 
-
-
-    public static long getmUid() {
+    public long getmUid() {
         return mUid;
     }
 
-    public static User getmUser() {
+    public User getmUser() {
         return mUser;
     }
 

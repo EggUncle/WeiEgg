@@ -13,7 +13,7 @@ import android.widget.ImageView;
 import com.app.egguncle.weiegg.CWConstant;
 import com.app.egguncle.weiegg.R;
 import com.app.egguncle.weiegg.utils.SPUtils;
-import com.app.egguncle.weiegg.utils.WeiBoUtils;
+import com.app.egguncle.weiegg.utils.WeiBoUtil;
 import com.sina.weibo.sdk.auth.Oauth2AccessToken;
 import com.sina.weibo.sdk.net.WeiboParameters;
 
@@ -25,8 +25,9 @@ public class SendActivity extends AppCompatActivity {
     private ImageView ivAt;
     private ImageView ivSend;
 
-    private WeiboParameters mParameters;
-    private Oauth2AccessToken mOauth2AccessToken;
+
+
+    private WeiBoUtil weiBoUtil;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -79,7 +80,7 @@ public class SendActivity extends AppCompatActivity {
                     AlertDialog.Builder builder = new AlertDialog.Builder(SendActivity.this);
                     builder.setTitle("错误").setMessage("输入内容不能为空").create().show();
                 } else {
-                    WeiBoUtils.sendMyWeiBo(SendActivity.this,editText.getText().toString(),mOauth2AccessToken.getToken(),mParameters);
+                    weiBoUtil.sendMyWeiBo(SendActivity.this, editText.getText().toString());
                     finish();
                 }
             }
@@ -87,8 +88,7 @@ public class SendActivity extends AppCompatActivity {
 
     }
 
-    private void initVar(){
-        mParameters=new WeiboParameters(CWConstant.APP_KEY);
-        mOauth2AccessToken = SPUtils.getInstance(getApplicationContext()).getToken();
+    private void initVar() {
+        weiBoUtil = WeiBoUtil.getWeiboUtils();
     }
 }
