@@ -147,12 +147,12 @@ public class HomePageActivity extends AppCompatActivity {
                     weiBoUtil.getPublicWeiBo(HomePageActivity.this, weiBoUtil.GET_OLD_WEIBO);
 
                 }
-                //当惯性滚动或静止时，加载图片
-                if(newState==RecyclerView.SCROLL_STATE_SETTLING||newState == RecyclerView.SCROLL_STATE_IDLE){
-                    weiboRecyclerViewAdapter.loadImg();
-                }else if(newState==RecyclerView.SCROLL_STATE_DRAGGING){
-                    weiboRecyclerViewAdapter.stopLoadImg();
-                }
+//                //当惯性滚动或静止时，加载图片
+//                if(newState==RecyclerView.SCROLL_STATE_SETTLING||newState == RecyclerView.SCROLL_STATE_IDLE){
+//                    weiboRecyclerViewAdapter.loadImg();
+//                }else if(newState==RecyclerView.SCROLL_STATE_DRAGGING){
+//                    weiboRecyclerViewAdapter.stopLoadImg();
+//                }
             }
 
             @Override

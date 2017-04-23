@@ -37,4 +37,6 @@
     <dimen name="rcv_img_height">100dp</dimen>
     <dimen name="height_botton">40dp</dimen>
     <dimen name="btm_img_size">30dp</dimen>
+
+
 </resources>

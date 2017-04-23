@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
+
 <android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent">
+                                                 xmlns:app="http://schemas.android.com/apk/res-auto"
+                                                 android:layout_width="match_parent"
+                                                 android:layout_height="match_parent">
 
     <android.support.design.widget.AppBarLayout
         android:id="@+id/appbar"
@@ -11,37 +12,37 @@
         android:fitsSystemWindows="true">
 
         <android.support.v7.widget.Toolbar xmlns:android="http://schemas.android.com/apk/res/android"
-            xmlns:app="http://schemas.android.com/apk/res-auto"
-            android:id="@+id/toolbar"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@color/colorPrimaryDark"
-            android:popupTheme="@style/ThemeOverlay.AppCompat.Light"
-            app:layout_scrollFlags="scroll|enterAlways|snap"
-            app:theme="@style/ThemeOverlay.AppCompat.ActionBar">
+                                           xmlns:app="http://schemas.android.com/apk/res-auto"
+                                           android:id="@+id/toolbar"
+                                           android:layout_width="match_parent"
+                                           android:layout_height="wrap_content"
+                                           android:background="@color/colorPrimaryDark"
+                                           android:popupTheme="@style/ThemeOverlay.AppCompat.Light"
+                                           app:layout_scrollFlags="scroll|enterAlways|snap"
+                                           app:theme="@style/ThemeOverlay.AppCompat.ActionBar">
 
         </android.support.v7.widget.Toolbar>
     </android.support.design.widget.AppBarLayout>
 
     <!--<LinearLayout-->
-        <!--android:layout_width="match_parent"-->
-        <!--android:layout_height="match_parent"-->
-        <!--android:orientation="vertical"-->
-        <!--android:scrollbars="none"-->
-        <!--app:layout_behavior="@string/appbar_scrolling_view_behavior">-->
+    <!--android:layout_width="match_parent"-->
+    <!--android:layout_height="match_parent"-->
+    <!--android:orientation="vertical"-->
+    <!--android:scrollbars="none"-->
+    <!--app:layout_behavior="@string/appbar_scrolling_view_behavior">-->
 
-        <android.support.v4.widget.SwipeRefreshLayout
-            app:layout_behavior="@string/appbar_scrolling_view_behavior"
-            android:id="@+id/srh_home"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
+    <android.support.v4.widget.SwipeRefreshLayout
+        android:id="@+id/srh_home"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
         <android.support.v7.widget.RecyclerView
             android:id="@+id/rcv_home"
             android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+            android:layout_height="match_parent"/>
 
-        </android.support.v4.widget.SwipeRefreshLayout>
+    </android.support.v4.widget.SwipeRefreshLayout>
 
 
     <!--</LinearLayout>-->
@@ -50,12 +51,11 @@
         android:id="@+id/fab_send_weibo"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginRight="@dimen/space_l"
+        android:layout_gravity="bottom|right"
         android:layout_marginBottom="@dimen/space_l"
+        android:layout_marginRight="@dimen/space_l"
         android:src="@android:drawable/ic_dialog_email"
-        app:layout_behavior="com.app.egguncle.weiegg.behavior.FabBehavior"
-        android:layout_gravity="bottom|right" />
-
+        app:layout_behavior="com.app.egguncle.weiegg.behavior.FabBehavior"/>
 
 
 </android.support.design.widget.CoordinatorLayout>
