@@ -18,4 +18,7 @@ public class CWUrls {
     //发送新的微博
     public static final String SEND_WEIBO= "https://api.weibo.com/2/statuses/update.json";
 
+    //发送带图片的微博
+    public static final String SEND_WEIBO_PIC="https://upload.api.weibo.com/2/statuses/upload.json";
+
 }

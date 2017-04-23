@@ -1,6 +1,7 @@
 package com.app.egguncle.weiegg;
 
 import android.app.Application;
+import android.content.Context;
 
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.Volley;
@@ -13,16 +14,22 @@ public class MyApplication extends Application {
 
     public static RequestQueue queues;
     private static SPUtils spUtils;
+    private static Context context;
 
     @Override
     public void onCreate() {
         super.onCreate();
-       // queues = Volley.newRequestQueue(getApplicationContext());
+        queues = Volley.newRequestQueue(getApplicationContext());
         spUtils=  SPUtils.getInstance(this);
+        context=getApplicationContext();
     }
 
     public static SPUtils getSpUtils(){
         return spUtils;
+    }
+
+    public static Context getMyContext(){
+        return context;
     }
 
     public static RequestQueue getHttpQueues(){

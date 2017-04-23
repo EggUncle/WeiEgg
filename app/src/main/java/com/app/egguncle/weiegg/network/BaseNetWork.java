@@ -12,6 +12,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.sina.weibo.sdk.exception.WeiboException;
 import com.sina.weibo.sdk.net.AsyncWeiboRunner;
+import com.sina.weibo.sdk.net.HttpManager;
 import com.sina.weibo.sdk.net.RequestListener;
 import com.sina.weibo.sdk.net.WeiboParameters;
 
@@ -26,6 +27,7 @@ public abstract class BaseNetWork {
 
     public BaseNetWork(Context context, String url) {
         mAsyncWeiboRunner = new AsyncWeiboRunner(context);
+
         this.url = url;
     }
 
@@ -40,6 +42,7 @@ public abstract class BaseNetWork {
 
             boolean success = false;
             HttpResponse response = new HttpResponse();
+
             JsonParser parser = new JsonParser();
             JsonElement element = parser.parse(s);
             if (element.isJsonObject()) {
@@ -80,6 +83,7 @@ public abstract class BaseNetWork {
 
     public void get() {
         mAsyncWeiboRunner.requestAsync(url, onPrepare(), "GET", mRequestListener);
+
     }
 
     public void post() {

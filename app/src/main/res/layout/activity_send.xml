@@ -38,6 +38,13 @@
         </LinearLayout>
     </ScrollView>
 
+    <ImageView
+        android:layout_width="@dimen/image_size"
+        android:layout_height="@dimen/image_size"
+        android:scaleType="centerCrop"
+        android:id="@+id/iv_ready_send"
+        />
+
     <LinearLayout
         android:background="@color/cw_bg"
         android:layout_width="match_parent"

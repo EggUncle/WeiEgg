@@ -2,11 +2,18 @@ package com.app.egguncle.weiegg.utils;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.support.v4.content.LocalBroadcastManager;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.volley.AuthFailureError;
+import com.android.volley.Request;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
 import com.app.egguncle.weiegg.CWConstant;
 import com.app.egguncle.weiegg.MyApplication;
 import com.app.egguncle.weiegg.R;
@@ -22,12 +29,17 @@ import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.sina.weibo.sdk.api.WeiboMultiMessage;
 import com.sina.weibo.sdk.auth.Oauth2AccessToken;
 import com.sina.weibo.sdk.constant.WBConstants;
+import com.sina.weibo.sdk.net.HttpManager;
 import com.sina.weibo.sdk.net.WeiboParameters;
 
+import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -59,7 +71,7 @@ public class WeiBoUtil {
 
     public static User mUser;
 
-    public static WeiboParameters mParameters;
+ //   public static WeiboParameters mParameters;
 
 //    public static WeiboParameters getParameters() {
 //        if (mParameters == null) {
@@ -72,10 +84,10 @@ public class WeiBoUtil {
 
     public static WeiBoUtil getWeiboUtils() {
         if (weiBoUtil == null) {
-            mParameters = new WeiboParameters(CWConstant.APP_KEY);
+           // mParameters = new WeiboParameters(CWConstant.APP_KEY);
             mToken = MyApplication.getSpUtils().getToken().getToken();
             weiBoUtil = new WeiBoUtil();
-            localBroadcastManager= HomePageActivity.getLocalBroadcastManager();
+            localBroadcastManager = HomePageActivity.getLocalBroadcastManager();
         }
         return weiBoUtil;
     }
@@ -92,10 +104,12 @@ public class WeiBoUtil {
      */
     public void getPublicWeiBo(final Context context, final int requestType) {
 
+
         new BaseNetWork(context, CWUrls.HOME_TIME_LINE) {
 
             @Override
             public WeiboParameters onPrepare() {
+                WeiboParameters mParameters=new WeiboParameters(CWConstant.APP_KEY);
                 mParameters.put(WBConstants.AUTH_ACCESS_TOKEN, mToken);
                 mParameters.put("count", 10);
                 if (requestType == GET_NEW_WEIBO) {
@@ -178,10 +192,13 @@ public class WeiBoUtil {
      * @param weiboContent
      */
     public void sendMyWeiBo(final Context context, final String weiboContent) {
+
+
         new BaseNetWork(context, CWUrls.SEND_WEIBO) {
 
             @Override
             public WeiboParameters onPrepare() {
+                WeiboParameters mParameters=new WeiboParameters(CWConstant.APP_KEY);
                 mParameters.put(WBConstants.AUTH_ACCESS_TOKEN, mToken);
                 mParameters.put("status", weiboContent);
                 return mParameters;
@@ -200,11 +217,91 @@ public class WeiBoUtil {
         }.post();
     }
 
+    /**
+     * 发送带图片的微博 仅支持JPEG、GIF、PNG格式，图片大小小于5M。
+     * @param context
+     * @param weiboContent
+     * @param imgUrl
+     */
+    public void sendMyWeiBoWithImg(final Context context, final String weiboContent, final String imgUrl) {
+
+
+        //获得图片类型
+        String imgTpye=imgUrl.substring(imgUrl.indexOf(".")+1,imgUrl.length());
+
+        final Bitmap bitmap = BitmapFactory.decodeFile(imgUrl);
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        if (imgTpye.equals("png")){
+            bitmap.compress(Bitmap.CompressFormat.PNG, 100, baos);
+        }else if(imgTpye.equals("jpeg")){
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+        }
+
+
+        final byte[] bytes =baos.toByteArray();
+
+
+        new BaseNetWork(context, CWUrls.SEND_WEIBO_PIC) {
+
+            @Override
+            public WeiboParameters onPrepare() {
+                WeiboParameters mParameters=new WeiboParameters(CWConstant.APP_KEY);
+                mParameters.put(WBConstants.AUTH_ACCESS_TOKEN, mToken);
+                mParameters.put("status", weiboContent);
+                mParameters.put("pic",bytes);
+                mParameters.put("Content-Type","multipart/form-data");
+
+
+                return mParameters;
+            }
+
+            @Override
+            public void onFinish(HttpResponse response, boolean sucess) {
+                if (sucess) {
+                    LogUtils.e("发送成功 " + weiboContent);
+                    Toast.makeText(context, "发送成功", Toast.LENGTH_SHORT).show();
+                } else {
+                    LogUtils.e("OnFinish() returned:" + response.message);
+                    Toast.makeText(context, "发送失败", Toast.LENGTH_SHORT).show();
+                }
+            }
+        }.post();
+//        StringRequest stringRequest=new StringRequest(Request.Method.POST, CWUrls.SEND_WEIBO_PIC, new Response.Listener<String>() {
+//            @Override
+//            public void onResponse(String s) {
+//
+//            }
+//        }, new Response.ErrorListener() {
+//            @Override
+//            public void onErrorResponse(VolleyError volleyError) {
+//
+//            }
+//        }){
+//            @Override
+//            public String getBodyContentType() {
+//                return "multipart/form-data";
+//            }
+//
+//            @Override
+//            protected Map<String, String> getParams() throws AuthFailureError {
+//                Map<String,String> param=new HashMap<>();
+//                param.put(WBConstants.AUTH_ACCESS_TOKEN, mToken);
+//                param.put("status", weiboContent);
+//                param.put("pic",bytes);
+//
+//                return param;
+//            }
+//        };
+//        MyApplication.getHttpQueues().add(stringRequest);
+
+    }
+
     public void getUserInformation(Context context) {
         new BaseNetWork(context, CWUrls.USERS_SHOW) {
 
             @Override
             public WeiboParameters onPrepare() {
+                WeiboParameters mParameters=new WeiboParameters(CWConstant.APP_KEY);
                 mParameters.put(WBConstants.AUTH_ACCESS_TOKEN, mToken);
                 mParameters.put(WBConstants.GAME_PARAMS_UID, mUid);
                 return mParameters;
@@ -234,6 +331,7 @@ public class WeiBoUtil {
 
             @Override
             public WeiboParameters onPrepare() {
+                WeiboParameters mParameters=new WeiboParameters(CWConstant.APP_KEY);
                 mParameters.put(WBConstants.AUTH_ACCESS_TOKEN, mToken);
                 return mParameters;
             }
@@ -283,6 +381,7 @@ public class WeiBoUtil {
 
             @Override
             public WeiboParameters onPrepare() {
+                WeiboParameters mParameters=new WeiboParameters(CWConstant.APP_KEY);
                 mParameters.put(WBConstants.AUTH_ACCESS_TOKEN, mToken);
                 mParameters.put("screen_name", name);
                 return mParameters;
@@ -320,6 +419,7 @@ public class WeiBoUtil {
 
             @Override
             public WeiboParameters onPrepare() {
+                WeiboParameters mParameters=new WeiboParameters(CWConstant.APP_KEY);
                 mParameters.put(WBConstants.AUTH_ACCESS_TOKEN, mToken);
 
 //                parameters.put("count", 10);
